@@ -783,7 +783,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 <p className={`text-xs font-black uppercase tracking-wider ${activeTab === 'specs' ? 'text-sky-400' : 'text-slate-200'}`}>
                   Dados do Veículo
                 </p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide truncate mt-0.5">
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide break-words leading-tight mt-0.5">
                   Ficha técnica, opcionais e especificações do veículo
                 </p>
               </div>
@@ -1084,7 +1084,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 <p className={`text-xs font-black uppercase tracking-wider ${activeTab === 'financial' ? 'text-sky-400' : 'text-slate-200'}`}>
                   Resumo Financeiro
                 </p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide truncate mt-0.5">
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide break-words leading-tight mt-0.5">
                   Dados financeiros, investimentos, saldo devedor e DRE
                 </p>
               </div>
@@ -2016,7 +2016,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 <p className={`text-xs font-black uppercase tracking-wider ${activeTab === 'checklist' ? 'text-sky-400' : 'text-slate-200'}`}>
                   Checklist Vistoria
                 </p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide truncate mt-0.5">
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide break-words leading-tight mt-0.5">
                   Vistoria detalhada e checklist de 100+ pontos de qualidade
                 </p>
               </div>
@@ -2088,7 +2088,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 <p className={`text-xs font-black uppercase tracking-wider ${activeTab === 'repairs' ? 'text-sky-400' : 'text-slate-200'}`}>
                   Reparos e Custos
                 </p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide truncate mt-0.5">
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide break-words leading-tight mt-0.5">
                   Histórico de consertos, peças e despesas adicionais
                 </p>
               </div>
@@ -2161,7 +2161,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 <p className={`text-xs font-black uppercase tracking-wider ${activeTab === 'diary' ? 'text-sky-400' : 'text-slate-200'}`}>
                   Bloco de Notas
                 </p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide truncate mt-0.5">
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide break-words leading-tight mt-0.5">
                   Anotações gerais, contatos e histórico de negociação
                 </p>
               </div>
@@ -2222,7 +2222,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 <p className={`text-xs font-black uppercase tracking-wider ${activeTab === 'photos' ? 'text-sky-400' : 'text-slate-200'}`}>
                   Galeria de Fotos
                 </p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide truncate mt-0.5">
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide break-words leading-tight mt-0.5">
                   Laudo visual com fotos registradas da vistoria
                 </p>
               </div>
