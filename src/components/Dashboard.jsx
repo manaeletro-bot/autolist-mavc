@@ -238,6 +238,13 @@ function VehicleCard({ vehicle, onClick, onDelete, isSoldStyle = false }) {
             <span className="inline-flex items-center bg-slate-900 border border-slate-800 text-slate-300 font-headline font-bold text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">
               {vehicle.year ? `Ano ${vehicle.year}` : 'Ano N/D'}
             </span>
+
+            {/* Cor */}
+            {vehicle.color && (
+              <span className="inline-flex items-center bg-slate-900 border border-slate-800 text-slate-300 font-headline font-bold text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                {vehicle.color}
+              </span>
+            )}
           </div>
         </div>
 
