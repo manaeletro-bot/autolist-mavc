@@ -70,4 +70,11 @@ Roteiro de testes de regressão antes de entregas ou encerramentos de milestones
 - [x] O Lucro Alvo e o Lucro Mínimo Assegurado (com base no desconto máximo) decrescem corretamente conforme novos débitos são inseridos?
 - [x] Os detalhes das despesas adicionais são exibidos de forma identada/agrupada na DRE e nas Condições de Aquisição (Compra)?
 
+## Testes de Lançamento e Infraestrutura Nuvem (V2.0)
+- [x] O título e marca do sistema no topo exibe "AUTOLIST - MAVC"?
+- [x] O repositório no GitHub está no ar sob `manaeletro-bot/autolist-mavc`?
+- [x] O projeto na Vercel compila e responde na URL de produção `https://autolist-mavc.vercel.app`?
+- [x] O Supabase Cloud possui a tabela `vehicles` criada com RLS ativo e permissões de SELECT/INSERT/UPDATE/DELETE?
+- [x] O arquivo `CREDENCIAIS_ACESSO.md` está ignorado pelo `.gitignore` e não foi enviado no commit do GitHub?
+
 

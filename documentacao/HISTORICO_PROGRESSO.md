@@ -4,7 +4,17 @@ Este arquivo registra a linha do tempo e a evolução das versões do sistema AU
 
 ## Linha do Tempo de Versões
 
-### Versão 1.9 - Rastreamento de Débitos, Quitações e Custos de Documentação (Atual)
+### Versão 2.0 - Infraestrutura Cloud Independente & Renomeação de Marca (Atual)
+*   **Foco:** Publicação do projeto em ambiente cloud 100% isolado sob o novo nome **AUTOLIST - MAVC**.
+*   **Melhorias:**
+    *   Renomeação da marca e identificadores do projeto de AUTOLIST - MEVC para **AUTOLIST - MAVC**.
+    *   Criação de repositório Git isolado no GitHub (`manaeletro-bot/autolist-mavc`).
+    *   Instalação da biblioteca oficial `@supabase/supabase-js` e ativação do adaptador cloud nativo.
+    *   Provisionamento de nova instância Supabase Cloud, criação da tabela `vehicles` e políticas RLS de leitura/escrita.
+    *   Deploy em produção na Vercel ([autolist-mavc.vercel.app](https://autolist-mavc.vercel.app)) com variáveis de ambiente e Keep-Alive Cron configurados.
+    *   Criação de relatório de credenciais confidenciais e proteção no `.gitignore`.
+
+### Versão 1.9 - Rastreamento de Débitos, Quitações e Custos de Documentação
 *   **Foco:** Fornecer aos revendedores controle total sobre as despesas e passivos do veículo para cálculo preciso da margem de lucro real.
 *   **Melhorias:**
     *   Criação de novos campos de despesas de aquisição: Quitação de Financiamento, Multas Pendentes, Documentação e Transferência, e Outras Despesas Relacionadas.

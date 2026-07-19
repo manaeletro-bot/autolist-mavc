@@ -48,4 +48,7 @@ Este arquivo descreve as regras e diretrizes que devem ser obedecidas por qualqu
 ### Regra 14: Cálculo Consolidado de Passivos e Despesas Extras
 *   Qualquer cálculo de custo total ou investimento consolidado no veículo deve somar obrigatoriamente: o valor original de aquisição, a soma total de reparos e serviços, e todas as despesas burocráticas registradas (quitação de financiamento, multas e custos de documentação/transferência). Margens de desconto máximo e lucros simulados devem ser deduzidos desse custo consolidado total para prevenir prejuízos ao lojista.
 
+### Regra 15: Proteção de Credenciais e Isolamento de Projetos Cloud
+*   Qualquer chave privada, senha de banco de dados, token PAT ou URL interna gerada durante o provisionamento de novos ambientes deve ser armazenada estritamente em arquivos de documentação locais e protegidos no `.gitignore` (ex: `CREDENCIAIS_ACESSO.md`). É terminantemente proibido subir relatórios de senhas ou arquivos de chave sensíveis no versionamento público do GitHub. Além disso, deploys e bancos de dados cloud devem ser criados de forma 100% independente para cada produto.
+
 
