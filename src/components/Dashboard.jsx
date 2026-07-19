@@ -188,12 +188,12 @@ function VehicleCard({ vehicle, onClick, onDelete, isSoldStyle = false }) {
   return (
     <div 
       onClick={onClick}
-      className={`glass-panel rounded-3xl overflow-hidden hover:border-slate-700 hover:scale-[1.005] active:scale-99 cursor-pointer transition-all shadow-lg flex flex-col md:flex-row group w-full ${
+      className={`glass-panel rounded-3xl overflow-hidden hover:border-sky-500/40 hover:scale-[1.005] active:scale-99 cursor-pointer transition-all shadow-lg flex flex-col md:flex-row group w-full ${
         isSoldStyle ? 'opacity-55 grayscale-[25%] hover:opacity-90 hover:grayscale-0' : ''
       }`}
     >
       {/* Photo Column */}
-      <div className="h-40 md:h-auto md:w-56 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-850 relative flex items-center justify-center text-slate-750 shrink-0">
+      <div className="h-44 md:h-auto md:w-56 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-850 relative flex items-center justify-center text-slate-750 shrink-0">
         {mainPhoto ? (
           <img src={mainPhoto} alt={vehicle.model} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
         ) : (
@@ -202,16 +202,6 @@ function VehicleCard({ vehicle, onClick, onDelete, isSoldStyle = false }) {
             <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">Sem Foto</span>
           </div>
         )}
-        
-        {/* Plate tag */}
-        <span className="absolute top-3.5 left-3.5 bg-slate-950/80 backdrop-blur-sm border border-slate-800 px-2.5 py-0.5 rounded text-[8px] font-black tracking-widest text-slate-350 text-slate-300 uppercase leading-none">
-          {vehicle.plate || 'SEM PLACA'}
-        </span>
-        
-        {/* Year Tag */}
-        <span className="absolute top-3.5 right-3.5 bg-slate-950/80 backdrop-blur-sm border border-slate-800 px-2.5 py-0.5 rounded text-[8px] font-black tracking-wider text-slate-400 uppercase leading-none">
-          {vehicle.year || 'ANO N/D'}
-        </span>
 
         {/* Sold Badge inside photo */}
         {isSoldStyle && (
@@ -224,9 +214,9 @@ function VehicleCard({ vehicle, onClick, onDelete, isSoldStyle = false }) {
       {/* Content Column */}
       <div className="p-5 flex-1 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         {/* Info */}
-        <div className="space-y-1.5 min-w-0">
+        <div className="space-y-2.5 min-w-0">
           <div>
-            <h4 className="text-[8px] text-slate-500 font-black uppercase tracking-widest leading-none">
+            <h4 className="text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none">
               {(vehicle.brand || 'Marca N/D').toUpperCase()}
             </h4>
             <h3 className={`text-base font-headline font-black text-white uppercase tracking-tight mt-1 leading-tight group-hover:text-sky-400 transition-colors ${
@@ -236,39 +226,38 @@ function VehicleCard({ vehicle, onClick, onDelete, isSoldStyle = false }) {
             </h3>
           </div>
 
-          <div className="flex gap-2 text-[8.5px] text-slate-400 font-bold uppercase">
-            <span>{vehicle.doors || 4} Portas</span>
-            <span>•</span>
-            <span>{vehicle.occupants || 5} Ocupantes</span>
+          {/* Placa & Ano Badges (Destacados na parte de baixo) */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Placa bem destacada */}
+            <span className="inline-flex items-center gap-1.5 bg-slate-950 border border-sky-500/40 text-sky-400 font-mono font-black text-[11px] px-2.5 py-1 rounded-lg shadow-sm tracking-widest uppercase">
+              <span className="h-1.5 w-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+              {vehicle.plate || 'SEM PLACA'}
+            </span>
+
+            {/* Ano */}
+            <span className="inline-flex items-center bg-slate-900 border border-slate-800 text-slate-300 font-headline font-bold text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">
+              {vehicle.year ? `Ano ${vehicle.year}` : 'Ano N/D'}
+            </span>
           </div>
         </div>
 
-        {/* Financial info & action row */}
-        <div className="flex flex-wrap md:flex-nowrap items-center gap-6 w-full md:w-auto justify-between md:justify-end">
-          {/* Financials details */}
+        {/* Financial info */}
+        <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-slate-850/60 pt-3 md:pt-0">
           <div className="flex gap-6 text-left">
             <div>
-              <p className="text-[7.5px] text-slate-500 font-black uppercase tracking-wider leading-none">Investimento</p>
+              <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider leading-none">Investimento</p>
               <p className="text-xs font-bold text-slate-200 mt-1 leading-none">{formatCurrency(totalInvestedVehicle)}</p>
             </div>
             <div>
-              <p className="text-[7.5px] text-slate-500 font-black uppercase tracking-wider leading-none">Preço Revenda</p>
+              <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider leading-none">Preço Revenda</p>
               <p className="text-xs font-bold text-slate-200 mt-1 leading-none">{formatCurrency(vehicle.resalePrice)}</p>
             </div>
             <div>
-              <p className="text-[7.5px] text-slate-500 font-black uppercase tracking-wider leading-none">Lucro Estimado</p>
+              <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider leading-none">Lucro Estimado</p>
               <p className={`text-xs font-black mt-1 leading-none ${profitVehicle >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatCurrency(profitVehicle)} ({profitPercent.toFixed(0)}%)
               </p>
             </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="h-8 px-3 rounded-lg bg-slate-900 border border-slate-800 text-[8px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-center gap-0.5 group-hover:bg-slate-850 transition-colors">
-              Ver
-              <ChevronRight className="h-3 w-3" />
-            </span>
           </div>
         </div>
       </div>
