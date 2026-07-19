@@ -114,7 +114,7 @@ export function GestorPortal() {
   // --- TELA DE LOGIN DO GESTOR ---
   if (!gestorSession) {
     return (
-      <div className="min-h-screen w-full bg-slate-950 flex flex-col items-center justify-center p-4 text-slate-100 font-sans relative">
+      <div className="gestor-portal-root flex flex-col items-center justify-center p-4 relative">
         <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
           
           <div className="p-6 bg-slate-950/80 border-b border-slate-800 text-center relative">
@@ -221,24 +221,24 @@ export function GestorPortal() {
   const lifetimeCount = users.filter(u => u.plan === 'lifetime').length;
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-100 font-sans p-4 md:p-8 space-y-6">
+    <div className="gestor-portal-root p-4 md:p-8 space-y-6 pb-20">
       
-      {/* Top Header do Gestor */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">
+      {/* Top Header do Gestor com Alto Contraste */}
+      <div className="bg-slate-900 border-2 border-slate-700 p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/10 shrink-0">
-            <Shield className="h-6 w-6" />
+          <div className="h-14 w-14 bg-amber-500/20 border-2 border-amber-500/40 text-amber-400 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+            <Shield className="h-7 w-7" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-headline font-black uppercase text-white tracking-tight">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl md:text-2xl font-headline font-black uppercase text-amber-400 tracking-tight drop-shadow">
                 AUTOLIST MAVC • PORTAL DO GESTOR
               </h1>
-              <span className="text-[9px] font-black uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-black uppercase bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full shadow-sm">
                 ADMIN MASTER
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+            <p className="text-xs md:text-sm text-slate-200 font-extrabold uppercase tracking-wider mt-1">
               Painel independente de controle de lojistas, assinaturas e licenças (`/gestor`)
             </p>
           </div>
@@ -247,21 +247,21 @@ export function GestorPortal() {
         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
           <button
             onClick={() => setShowAddUserModal(true)}
-            className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black uppercase tracking-wider text-xs rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2"
+            className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black uppercase tracking-wider text-xs rounded-xl shadow-lg shadow-amber-400/20 transition-all flex items-center gap-2"
           >
             <Plus className="h-4 w-4" /> Novo Lojista
           </button>
 
           <a
             href="/"
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-750 text-slate-300 font-black uppercase tracking-wider text-xs rounded-xl border border-slate-700 transition-all flex items-center gap-2"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-wider text-xs rounded-xl border border-slate-600 transition-all flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" /> Site Lojista (`/`)
           </a>
 
           <button
             onClick={handleGestorLogout}
-            className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl transition-all"
+            className="p-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl transition-all"
             title="Sair do Gestor"
           >
             <LogOut className="h-4.5 w-4.5" />

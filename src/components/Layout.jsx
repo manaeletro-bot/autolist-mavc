@@ -120,29 +120,6 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
               Financeiro
             </button>
 
-            {/* Portal do Gestor - Visível apenas para Admins */}
-            {currentUser?.role === 'admin' && (
-              <button
-                onClick={() => handleNavClick('admin')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all border ${
-                  currentTab === 'admin'
-                    ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-black'
-                    : 'text-amber-400 border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10'
-                }`}
-              >
-                <Shield className="h-4 w-4" />
-                Portal Gestor
-              </button>
-            )}
-
-            {/* Botão Sair / Trocar Usuário no Menu */}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 transition-all mt-4"
-            >
-              <LogOut className="h-4 w-4" />
-              Sair (Trocar Usuário)
-            </button>
           </nav>
         </div>
 
@@ -208,7 +185,7 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
                 className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                Sair (Trocar Usuário)
+                Sair da Conta
               </button>
             </div>
           ) : (
