@@ -4,17 +4,33 @@ import Dashboard from './components/Dashboard';
 import VehicleForm from './components/VehicleForm';
 import VehicleDetails from './components/VehicleDetails';
 import FinancialDashboard from './components/FinancialDashboard';
-import { AdminPortal } from './components/AdminPortal';
+import { GestorPortal } from './components/GestorPortal';
 import { db } from './services/db';
-import { authService } from './services/authService';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState('dashboard'); // dashboard, new-vehicle, details, financial, admin
+  const [pathname, setPathname] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => setPathname(window.location.pathname);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Se a rota for /gestor, renderiza o Portal do Gestor completamente independente!
+  if (pathname.startsWith('/gestor')) {
+    return <GestorPortal />;
+  }
+
+  // Caso contrário, renderiza a aplicação principal do AUTOLIST Lojista (/)
+  return <UserApp />;
+}
+
+function UserApp() {
+  const [currentTab, setCurrentTab] = useState('dashboard'); // dashboard, new-vehicle, details, financial
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load vehicles on mount and on auth change
   useEffect(() => {
     fetchVehicles();
   }, []);
@@ -26,7 +42,6 @@ export default function App() {
       setVehicles(data || []);
     } catch (e) {
       console.error(e);
-      alert('Erro ao buscar dados do banco de dados: ' + e.message);
     } finally {
       setLoading(false);
     }
@@ -35,19 +50,13 @@ export default function App() {
   const handleSaveVehicle = async (formData) => {
     try {
       if (selectedVehicle) {
-        // Edit mode
         const updated = await db.updateVehicle(selectedVehicle.id, formData);
-        
-        // Update local state list
         setVehicles(prev => prev.map(v => v.id === selectedVehicle.id ? updated : v));
-        // Update selected vehicle view
         setSelectedVehicle(updated);
         setCurrentTab('details');
         alert('Veículo atualizado com sucesso!');
       } else {
-        // Create mode
         const created = await db.createVehicle(formData);
-        
         setVehicles(prev => [created, ...prev]);
         setCurrentTab('dashboard');
         alert('Novo veículo cadastrado com sucesso!');
@@ -93,11 +102,9 @@ export default function App() {
   };
 
   const handleAddVehicleClick = () => {
-    setSelectedVehicle(null); // Clear selection for create mode
+    setSelectedVehicle(null);
     setCurrentTab('new-vehicle');
   };
-
-  const currentUser = authService.getCurrentUser();
 
   return (
     <Layout
@@ -130,15 +137,9 @@ export default function App() {
             />
           )}
 
-          {currentTab === 'admin' && currentUser?.role === 'admin' && (
-            <AdminPortal
-              currentUser={currentUser}
-            />
-          )}
-
           {currentTab === 'new-vehicle' && (
             <VehicleForm
-              vehicle={selectedVehicle} // Passes vehicle to edit, or null to create
+              vehicle={selectedVehicle}
               onSave={handleSaveVehicle}
               onCancel={() => {
                 if (selectedVehicle) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { authService } from '../services/authService';
-import { Wrench, LogIn, UserPlus, ShieldCheck, Store, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Wrench, LogIn, UserPlus, Shield, Store, Mail, Lock, User, AlertCircle } from 'lucide-react';
 
 export function AuthModal({ onLoginSuccess }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -59,11 +59,24 @@ export function AuthModal({ onLoginSuccess }) {
     }
   };
 
-  const handleQuickAdminLogin = async () => {
+  const handleQuickLojistaLogin = async () => {
     setError('');
     setLoading(true);
     try {
-      const user = await authService.login('admin@autolist.com', 'admin123');
+      const user = await authService.login('lojista@autolist.com', '123456');
+      onLoginSuccess(user);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQuickGestorLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const user = await authService.login('gestor@autolist.com', 'gestor2026');
       onLoginSuccess(user);
     } catch (err) {
       setError(err.message);
@@ -239,17 +252,35 @@ export function AuthModal({ onLoginSuccess }) {
             )}
           </button>
 
-          {/* Atalho rápido para Gestor Admin */}
+          {/* Atalhos rápidos para testes */}
           {!isRegisterMode && (
-            <div className="pt-2 border-t border-slate-800 text-center">
-              <button
-                type="button"
-                onClick={handleQuickAdminLogin}
-                className="text-[10px] text-slate-400 hover:text-sky-400 font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto transition-colors"
+            <div className="pt-3 border-t border-slate-800 space-y-2 text-center">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Atalhos Rápidos para Teste</p>
+              
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleQuickLojistaLogin}
+                  className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-750 text-sky-400 rounded-xl text-[9px] font-black uppercase tracking-wider border border-slate-700 transition-all"
+                >
+                  Lojista Teste
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleQuickGestorLogin}
+                  className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-750 text-amber-400 rounded-xl text-[9px] font-black uppercase tracking-wider border border-slate-700 transition-all"
+                >
+                  Gestor Master
+                </button>
+              </div>
+
+              <a
+                href="/gestor"
+                className="text-[10px] text-amber-400 hover:text-amber-300 font-black uppercase tracking-wider flex items-center justify-center gap-1.5 pt-2 transition-colors"
               >
-                <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
-                Entrar com Conta Gestor (admin@autolist.com)
-              </button>
+                <Shield className="h-3.5 w-3.5" /> Ir para o Painel do Gestor (`/gestor`)
+              </a>
             </div>
           )}
         </form>
