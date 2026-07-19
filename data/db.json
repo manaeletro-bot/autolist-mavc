@@ -1,0 +1,297 @@
+{
+  "vehicles": [
+    {
+      "id": 6,
+      "createdAt": "2026-07-19T18:13:38.070Z",
+      "updatedAt": "2026-07-19T21:19:35.781Z",
+      "brand": "Tesla",
+      "model": "Model Y Long Range",
+      "year": "2023",
+      "color": "Branco",
+      "plate": "EVY2026",
+      "chassis": "",
+      "km": "18000",
+      "fuelLevel": "100%",
+      "acquisitionPrice": "240000",
+      "resalePrice": "285000",
+      "maxDiscountPercent": 5,
+      "images": [
+        "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1571127236794-81c0bbfe1ce3?auto=format&fit=crop&w=800&q=80"
+      ],
+      "checklist": {
+        "farol_baixo": {
+          "status": "FAIL",
+          "notes": ""
+        },
+        "farol_alto": {
+          "status": "OK",
+          "notes": ""
+        }
+      },
+      "repairs": [
+        {
+          "id": 1784495975767,
+          "description": "Reparar: Farol Baixo (Sem detalhes)",
+          "price": 0,
+          "status": "pending",
+          "date": "2026-07-19T21:19:35.767Z"
+        }
+      ],
+      "generalNotes": "Veículo elétrico 100% conservado, piloto automático completo.",
+      "fuelType": "eletrico",
+      "doors": "4",
+      "occupants": "5",
+      "options": [
+        "Ar Condicionado Digital Dual Zone",
+        "Teto Panorâmico",
+        "Piloto Automático Autônomo",
+        "Painel Multimídia 15 Polegadas",
+        "Bancos de Couro Aquecidos",
+        "Câmeras 360 Graus"
+      ],
+      "isSold": false,
+      "purchaseMode": "full",
+      "purchaseTradeInDesc": "",
+      "purchaseTradeInVal": "",
+      "purchaseCashVal": "",
+      "purchaseInstallmentsTotal": "",
+      "purchaseInstallmentsPaid": "",
+      "purchaseInstallmentPrice": "",
+      "previousOwner": "Único Dono"
+    },
+    {
+      "id": 1,
+      "brand": "Ford",
+      "model": "Focus 2.0 Titanium Hatch",
+      "year": "2019",
+      "color": "Preto",
+      "plate": "ABC1D23",
+      "chassis": "",
+      "km": 52000,
+      "fuelLevel": "1/2",
+      "acquisitionPrice": 50000,
+      "resalePrice": 62000,
+      "maxDiscountPercent": 5,
+      "doors": "4",
+      "occupants": "5",
+      "options": [
+        "Ar Condicionado",
+        "Direção Hidráulica",
+        "Vidros Elétricos",
+        "Travas Elétricas",
+        "Alarme",
+        "Airbags"
+      ],
+      "isSold": false,
+      "checklist": {
+        "estepe": {
+          "status": "OK",
+          "notes": ""
+        },
+        "macaco": {
+          "status": "FAIL",
+          "notes": "Falta macaco"
+        },
+        "saude_eletrica": {
+          "status": "FAIL",
+          "notes": "Bateria fraca"
+        }
+      },
+      "repairs": [
+        {
+          "id": 1784479018522,
+          "description": "Reparar: Macaco Hidráulico/Mecânico (Falta macaco)",
+          "price": 150,
+          "status": "pending",
+          "date": "2026-07-19T16:36:58.522Z"
+        },
+        {
+          "id": 1784479090353,
+          "description": "Troca de Oleo",
+          "price": 250,
+          "status": "pending",
+          "date": "2026-07-19T16:38:10.353Z"
+        },
+        {
+          "id": 1784480223187,
+          "description": "Reparar: Saúde elétrica (Bateria fraca)",
+          "price": 350,
+          "status": "pending",
+          "date": "2026-07-19T16:57:03.187Z"
+        }
+      ],
+      "generalNotes": "Veículo completo com revisões em dia.",
+      "fuelType": "flex",
+      "images": [
+        "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"
+      ],
+      "purchaseMode": "full",
+      "purchaseTradeInDesc": "",
+      "purchaseTradeInVal": "",
+      "purchaseCashVal": "",
+      "purchaseInstallmentsTotal": "",
+      "purchaseInstallmentsPaid": "",
+      "purchaseInstallmentPrice": "",
+      "previousOwner": "Particular",
+      "updatedAt": "2026-07-19T18:38:09.268Z"
+    },
+    {
+      "id": 2,
+      "brand": "Honda",
+      "model": "HR-V EXL 1.5 Turbo",
+      "year": "2021",
+      "color": "Cinza",
+      "plate": "HON2B45",
+      "chassis": "",
+      "km": 32000,
+      "fuelLevel": "1/4",
+      "acquisitionPrice": 110000,
+      "resalePrice": 132000,
+      "maxDiscountPercent": 4,
+      "doors": "4",
+      "occupants": "5",
+      "options": [
+        "Ar Condicionado",
+        "Direção Elétrica",
+        "Vidros Elétricos",
+        "Travas Elétricas",
+        "Alarme",
+        "Airbags",
+        "Freio ABS",
+        "Central Multimídia"
+      ],
+      "isSold": false,
+      "checklist": {},
+      "repairs": [],
+      "generalNotes": "Estado excelente de conservação, única dona.",
+      "updatedAt": "2026-07-19T17:02:48.106Z",
+      "images": [
+        "https://images.unsplash.com/photo-1609521263047-f8d205293f24?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": 3,
+      "brand": "Toyota",
+      "model": "SW4 SRX 2.8 Diesel 4x4",
+      "year": "2020",
+      "color": "Branca",
+      "plate": "TOY4X99",
+      "chassis": "",
+      "km": 75000,
+      "fuelLevel": "Reserva",
+      "acquisitionPrice": 280000,
+      "resalePrice": 325000,
+      "maxDiscountPercent": 5,
+      "doors": "4",
+      "occupants": "7",
+      "options": [
+        "Ar Condicionado",
+        "Direção Hidráulica",
+        "Vidros Elétricos",
+        "Travas Elétricas",
+        "Alarme",
+        "Freio ABS",
+        "Airbags",
+        "Tração 4x4",
+        "Central Multimídia",
+        "Painel Digital"
+      ],
+      "isSold": false,
+      "checklist": {},
+      "repairs": [],
+      "generalNotes": "SUV de 7 lugares completo em excelente estado.",
+      "images": [
+        "https://images.unsplash.com/photo-1559416523-140ddc3d238c?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": 4,
+      "brand": "BYD",
+      "model": "Dolphin Mini EV",
+      "year": "2024",
+      "color": "Verde Sprout",
+      "plate": "BYD1E22",
+      "chassis": "",
+      "km": 5000,
+      "fuelLevel": "100%",
+      "acquisitionPrice": 95000,
+      "resalePrice": 115000,
+      "maxDiscountPercent": 3,
+      "doors": "4",
+      "occupants": "4",
+      "options": [
+        "Ar Condicionado",
+        "Direção Elétrica",
+        "Vidros Elétricos",
+        "Travas Elétricas",
+        "Alarme",
+        "Freio ABS",
+        "Airbags",
+        "Central Multimídia",
+        "Painel Digital"
+      ],
+      "isSold": false,
+      "checklist": {},
+      "repairs": [],
+      "generalNotes": "Veículo elétrico semi-novo, bateria 100% de saúde.",
+      "images": [
+        "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      "id": 5,
+      "brand": "Chevrolet",
+      "model": "Onix LTZ 1.0 Turbo",
+      "year": "2022",
+      "color": "Prata",
+      "plate": "GM12E34",
+      "chassis": "",
+      "km": 42000,
+      "fuelLevel": "Cheio",
+      "acquisitionPrice": 65000,
+      "resalePrice": 78000,
+      "maxDiscountPercent": 7,
+      "doors": "4",
+      "occupants": "5",
+      "options": [
+        "Ar Condicionado",
+        "Direção Elétrica",
+        "Vidros Elétricos",
+        "Travas Elétricas",
+        "Alarme",
+        "Airbags",
+        "Freio ABS"
+      ],
+      "isSold": true,
+      "checklist": {},
+      "repairs": [],
+      "generalNotes": "Vendido em 15/07/2026 com lucro esperado de R$ 13.000,00.",
+      "fuelType": "flex",
+      "previousOwner": "",
+      "updatedAt": "2026-07-19T19:46:20.272Z",
+      "purchaseMode": "full",
+      "purchaseTradeInDesc": "",
+      "purchaseTradeInVal": 0,
+      "purchaseCashVal": 0,
+      "purchaseInstallmentsTotal": 0,
+      "purchaseInstallmentsPaid": 0,
+      "purchaseInstallmentPrice": 0,
+      "images": [
+        "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=800&q=80"
+      ]
+    }
+  ]
+}
