@@ -1,5 +1,6 @@
 import { localAdapter } from './localAdapter';
 import { supabaseAdapter } from './supabaseAdapter';
+import { authService } from './authService';
 
 // Determina se devemos usar o Supabase. 
 // O usuário pode forçar o modo local nas configurações mesmo se o Supabase estiver configurado.
@@ -34,13 +35,19 @@ export const db = {
 
   async getVehicles() {
     const { adapter } = getActiveAdapter();
-    return adapter.getVehicles();
+    const currentUser = authService.getCurrentUser();
+    const userId = currentUser ? currentUser.id : null;
+    const isAdmin = currentUser ? currentUser.role === 'admin' : false;
+    return adapter.getVehicles(userId, isAdmin);
   },
 
   async createVehicle(vehicleData) {
     const { adapter } = getActiveAdapter();
+    const currentUser = authService.getCurrentUser();
+    
     // Sanitização de dados básicos
     const cleaned = {
+      user_id: vehicleData.user_id || (currentUser ? currentUser.id : null),
       brand: vehicleData.brand || '',
       model: vehicleData.model || '',
       year: vehicleData.year || '',

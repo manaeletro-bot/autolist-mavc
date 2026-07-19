@@ -4,15 +4,17 @@ import Dashboard from './components/Dashboard';
 import VehicleForm from './components/VehicleForm';
 import VehicleDetails from './components/VehicleDetails';
 import FinancialDashboard from './components/FinancialDashboard';
+import { AdminPortal } from './components/AdminPortal';
 import { db } from './services/db';
+import { authService } from './services/authService';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState('dashboard'); // dashboard, new-vehicle, details, financial
+  const [currentTab, setCurrentTab] = useState('dashboard'); // dashboard, new-vehicle, details, financial, admin
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load vehicles on mount
+  // Load vehicles on mount and on auth change
   useEffect(() => {
     fetchVehicles();
   }, []);
@@ -21,7 +23,7 @@ export default function App() {
     setLoading(true);
     try {
       const data = await db.getVehicles();
-      setVehicles(data);
+      setVehicles(data || []);
     } catch (e) {
       console.error(e);
       alert('Erro ao buscar dados do banco de dados: ' + e.message);
@@ -95,11 +97,14 @@ export default function App() {
     setCurrentTab('new-vehicle');
   };
 
+  const currentUser = authService.getCurrentUser();
+
   return (
     <Layout
       currentTab={currentTab}
       setCurrentTab={setCurrentTab}
       onAddVehicleClick={handleAddVehicleClick}
+      onUserChange={fetchVehicles}
     >
       {loading && vehicles.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
@@ -122,6 +127,12 @@ export default function App() {
           {currentTab === 'financial' && (
             <FinancialDashboard
               vehicles={vehicles}
+            />
+          )}
+
+          {currentTab === 'admin' && currentUser?.role === 'admin' && (
+            <AdminPortal
+              currentUser={currentUser}
             />
           )}
 
