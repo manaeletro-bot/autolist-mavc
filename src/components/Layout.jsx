@@ -38,6 +38,7 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
   const handleLogout = () => {
     authService.logout();
     setCurrentUser(null);
+    setIsMobileMenuOpen(false);
     if (onUserChange) onUserChange();
   };
 
