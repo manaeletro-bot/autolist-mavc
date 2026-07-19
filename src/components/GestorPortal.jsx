@@ -42,6 +42,13 @@ export function GestorPortal() {
   };
 
   useEffect(() => {
+    document.body.classList.add('gestor-mode');
+    return () => {
+      document.body.classList.remove('gestor-mode');
+    };
+  }, []);
+
+  useEffect(() => {
     if (gestorSession) {
       loadData();
     }
@@ -114,7 +121,7 @@ export function GestorPortal() {
   // --- TELA DE LOGIN DO GESTOR ---
   if (!gestorSession) {
     return (
-      <div className="gestor-portal-root flex flex-col items-center justify-center p-4 relative">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative">
         <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
           
           <div className="p-6 bg-slate-950/80 border-b border-slate-800 text-center relative">
@@ -221,7 +228,7 @@ export function GestorPortal() {
   const lifetimeCount = users.filter(u => u.plan === 'lifetime').length;
 
   return (
-    <div className="gestor-portal-root p-4 md:p-8 space-y-6 pb-20">
+    <div className="min-h-screen w-full p-4 md:p-8 space-y-6 pb-28">
       
       {/* Top Header do Gestor com Alto Contraste */}
       <div className="bg-slate-900 border-2 border-slate-700 p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">

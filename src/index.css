@@ -22,6 +22,23 @@
   }
 }
 
+/* Modo Gestor: Libera rolagem nativa e força tema escuro master */
+body.gestor-mode {
+  background-color: #080c14 !important;
+  background-image: none !important;
+  color: #f8fafc !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+body.gestor-mode #root {
+  min-height: 100vh !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -75,201 +92,205 @@ input[type="range"] {
   accent-color: #007aff;
 }
 
-/* DARK TO LIGHT TRANSFORMATION OVERRIDES */
-.bg-slate-950 {
+/* OVERRIDES APENAS PARA O PAINEL DO USUÁRIO (NÃO APLICAR NO GESTOR) */
+body:not(.gestor-mode) .bg-slate-950 {
   background-color: transparent !important;
 }
 
-.text-slate-100 {
+body:not(.gestor-mode) .text-slate-100 {
   color: #1c1c1e !important;
 }
 
-/* Gray colors & Text Overrides */
-.text-slate-200, .text-slate-300, .text-slate-400 {
+body:not(.gestor-mode) .text-slate-200, 
+body:not(.gestor-mode) .text-slate-300, 
+body:not(.gestor-mode) .text-slate-400 {
   color: #3a3a3c !important;
 }
 
-.text-slate-500, .text-slate-550, .text-slate-600 {
+body:not(.gestor-mode) .text-slate-500, 
+body:not(.gestor-mode) .text-slate-550, 
+body:not(.gestor-mode) .text-slate-600 {
   color: #8e8e93 !important;
 }
 
-.text-white {
+body:not(.gestor-mode) .text-white {
   color: #1c1c1e !important;
 }
 
-/* Borders */
-.border-slate-800, .border-slate-850, .border-slate-900 {
+body:not(.gestor-mode) .border-slate-800, 
+body:not(.gestor-mode) .border-slate-850, 
+body:not(.gestor-mode) .border-slate-900 {
   border-color: rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Background panel replacements */
-.bg-slate-900, .bg-slate-900\/95, .bg-slate-900\/60, .bg-slate-900\/40, .bg-slate-950\/40, .bg-slate-950\/60, .bg-slate-950\/80 {
+body:not(.gestor-mode) .bg-slate-900, 
+body:not(.gestor-mode) .bg-slate-900\/95, 
+body:not(.gestor-mode) .bg-slate-900\/60, 
+body:not(.gestor-mode) .bg-slate-900\/40, 
+body:not(.gestor-mode) .bg-slate-950\/40, 
+body:not(.gestor-mode) .bg-slate-950\/60, 
+body:not(.gestor-mode) .bg-slate-950\/80 {
   background-color: rgba(255, 255, 255, 0.72) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
 }
 
-/* Inputs & Form Controls */
-input[type="text"], input[type="number"], select, textarea {
+body:not(.gestor-mode) input[type="text"], 
+body:not(.gestor-mode) input[type="number"], 
+body:not(.gestor-mode) select, 
+body:not(.gestor-mode) textarea {
   background-color: rgba(255, 255, 255, 0.85) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   color: #1c1c1e !important;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.01) !important;
 }
 
-input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+body:not(.gestor-mode) input[type="text"]:focus, 
+body:not(.gestor-mode) input[type="number"]:focus, 
+body:not(.gestor-mode) select:focus, 
+body:not(.gestor-mode) textarea:focus {
   border-color: #007aff !important;
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15) !important;
 }
 
-/* Buttons */
-button.bg-sky-500, button.bg-sky-600, button.bg-sky-650 {
+body:not(.gestor-mode) button.bg-sky-500, 
+body:not(.gestor-mode) button.bg-sky-600, 
+body:not(.gestor-mode) button.bg-sky-650 {
   background-color: #007aff !important;
   color: #ffffff !important;
 }
 
-button.bg-sky-500:hover, button.bg-sky-600:hover, button.bg-sky-650:hover {
-  background-color: #0062cc !important;
-}
-
-/* Semantic Status Contrast fixes for light background */
-.text-emerald-400, .text-emerald-450 {
+body:not(.gestor-mode) .text-emerald-400, 
+body:not(.gestor-mode) .text-emerald-450 {
   color: #248a3d !important;
 }
 
-.bg-emerald-500\/10, .bg-emerald-500\/5 {
+body:not(.gestor-mode) .bg-emerald-500\/10, 
+body:not(.gestor-mode) .bg-emerald-500\/5 {
   background-color: rgba(36, 138, 61, 0.08) !important;
   border-color: rgba(36, 138, 61, 0.15) !important;
 }
 
-.text-rose-450, .text-rose-400 {
+body:not(.gestor-mode) .text-rose-450, 
+body:not(.gestor-mode) .text-rose-400 {
   color: #c93b3b !important;
 }
 
-.bg-rose-500\/10, .bg-rose-500\/5 {
+body:not(.gestor-mode) .bg-rose-500\/10, 
+body:not(.gestor-mode) .bg-rose-500\/5 {
   background-color: rgba(201, 59, 59, 0.08) !important;
   border-color: rgba(201, 59, 59, 0.15) !important;
 }
 
-.text-amber-400 {
+body:not(.gestor-mode) .text-amber-400 {
   color: #b25e00 !important;
 }
 
-.bg-amber-500\/10, .bg-amber-500\/5 {
+body:not(.gestor-mode) .bg-amber-500\/10, 
+body:not(.gestor-mode) .bg-amber-500\/5 {
   background-color: rgba(178, 94, 0, 0.08) !important;
   border-color: rgba(178, 94, 0, 0.15) !important;
 }
 
-.text-sky-400 {
+body:not(.gestor-mode) .text-sky-400 {
   color: #007aff !important;
 }
 
-/* Hover fixes */
-.hover\:bg-slate-800:hover, .hover\:bg-slate-850:hover, .hover\:bg-slate-900:hover, .hover\:bg-slate-800\/50:hover {
+body:not(.gestor-mode) .hover\:bg-slate-800:hover, 
+body:not(.gestor-mode) .hover\:bg-slate-850:hover, 
+body:not(.gestor-mode) .hover\:bg-slate-900:hover, 
+body:not(.gestor-mode) .hover\:bg-slate-800\/50:hover {
   background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Sidebar and Header Glass Panels */
-header {
+body:not(.gestor-mode) header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
   background-color: rgba(255, 255, 255, 0.6) !important;
 }
 
-aside {
+body:not(.gestor-mode) aside {
   border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Placeholder text */
-.placeholder-slate-500, .placeholder-slate-550, .placeholder-slate-650 {
+body:not(.gestor-mode) .placeholder-slate-500, 
+body:not(.gestor-mode) .placeholder-slate-550, 
+body:not(.gestor-mode) .placeholder-slate-650 {
   color: #a0a0a5 !important;
 }
 
-/* Text strike through */
-.line-through {
-  text-decoration-color: rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Custom cards and items */
-.bg-slate-950\/60, .bg-slate-950\/70, .bg-slate-950\/20, .bg-slate-950\/40 {
+body:not(.gestor-mode) .bg-slate-950\/60, 
+body:not(.gestor-mode) .bg-slate-950\/70, 
+body:not(.gestor-mode) .bg-slate-950\/20, 
+body:not(.gestor-mode) .bg-slate-950\/40 {
   background-color: rgba(0, 0, 0, 0.02) !important;
 }
 
 /* ==========================================================================
-   GESTOR PORTAL SCOPED STYLES (/gestor)
-   Garante rolagem de página (overflow-y: auto) e alto contraste absoluto
+   ESTILOS EXCLUSIVOS DO GESTOR MASTER (body.gestor-mode)
    ========================================================================== */
 
-.gestor-portal-root {
-  background-color: #080c14 !important;
-  color: #f8fafc !important;
-  height: 100vh !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-}
-
-.gestor-portal-root .bg-slate-950 {
+body.gestor-mode .bg-slate-950 {
   background-color: #080c14 !important;
 }
 
-.gestor-portal-root .bg-slate-900 {
+body.gestor-mode .bg-slate-900 {
   background-color: #0f172a !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-.gestor-portal-root .bg-slate-850,
-.gestor-portal-root .bg-slate-800 {
+body.gestor-mode .bg-slate-850,
+body.gestor-mode .bg-slate-800 {
   background-color: #1e293b !important;
 }
 
-.gestor-portal-root .text-white {
+body.gestor-mode .text-white {
   color: #ffffff !important;
 }
 
-.gestor-portal-root .text-slate-100 {
+body.gestor-mode .text-slate-100 {
   color: #f8fafc !important;
 }
 
-.gestor-portal-root .text-slate-200 {
+body.gestor-mode .text-slate-200 {
   color: #e2e8f0 !important;
 }
 
-.gestor-portal-root .text-slate-300 {
+body.gestor-mode .text-slate-300 {
   color: #cbd5e1 !important;
 }
 
-.gestor-portal-root .text-slate-400 {
+body.gestor-mode .text-slate-400 {
   color: #94a3b8 !important;
 }
 
-.gestor-portal-root .text-amber-400 {
+body.gestor-mode .text-amber-400 {
   color: #fbbf24 !important;
 }
 
-.gestor-portal-root .bg-amber-400 {
+body.gestor-mode .bg-amber-400 {
   background-color: #fbbf24 !important;
   color: #020617 !important;
 }
 
-.gestor-portal-root .bg-amber-500 {
+body.gestor-mode .bg-amber-500 {
   background-color: #f59e0b !important;
   color: #020617 !important;
 }
 
-.gestor-portal-root .border-slate-800,
-.gestor-portal-root .border-slate-700 {
+body.gestor-mode .border-slate-800,
+body.gestor-mode .border-slate-700 {
   border-color: #334155 !important;
 }
 
-.gestor-portal-root input,
-.gestor-portal-root select,
-.gestor-portal-root textarea {
+body.gestor-mode input,
+body.gestor-mode select,
+body.gestor-mode textarea {
   background-color: #020617 !important;
   color: #ffffff !important;
   border-color: #334155 !important;
 }
 
-.gestor-portal-root input::placeholder {
+body.gestor-mode input::placeholder {
   color: #64748b !important;
 }
-
