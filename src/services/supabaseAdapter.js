@@ -4,17 +4,13 @@
 // 2. Configurar as variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no arquivo .env
 // 3. Criar uma tabela chamada 'vehicles' no Supabase com estrutura compatível.
 
-// Importação dinâmica comentada para evitar erros no modo local puro sem pacotes instalados.
-// Quando for migrar, instale o pacote e descomente a linha abaixo.
-// import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Mock do cliente Supabase para evitar crash se o pacote não estiver instalado
 let supabaseClient = null;
 
-// Função para inicializar o cliente Supabase se estiver configurado e se o pacote puder ser carregado
 export function getSupabaseClient() {
   if (supabaseClient) return supabaseClient;
   
@@ -22,14 +18,11 @@ export function getSupabaseClient() {
     return null;
   }
 
-  // Em produção, isso usará o createClient importado.
-  // Como estamos testando local, simularemos para evitar quebra de compilação.
   try {
-    // Se o createClient estivesse importado, faríamos:
-    // supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-    // return supabaseClient;
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    return supabaseClient;
   } catch (e) {
-    console.warn('Erro ao carregar cliente Supabase. Verifique se o pacote @supabase/supabase-js está instalado.', e);
+    console.warn('Erro ao inicializar cliente Supabase.', e);
   }
   return null;
 }

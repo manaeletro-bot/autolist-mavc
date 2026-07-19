@@ -4,3 +4,8 @@ dist
 .env.local
 .env.*.local
 db.json
+
+# Sensitive documentation and credentials
+documentacao/CREDENCIAIS_ACESSO.md
+documentacao/*credenciais*
+documentacao/*senhas*
