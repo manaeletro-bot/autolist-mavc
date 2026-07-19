@@ -2,7 +2,7 @@ const API_BASE = '/api';
 
 export const localAdapter = {
   async getVehicles(userId, isAdmin) {
-    const response = await fetch(`${API_BASE}/vehicles`);
+    const response = await fetch(`${API_BASE}/vehicles?_t=${Date.now()}`, { cache: 'no-cache' });
     if (!response.ok) {
       throw new Error('Erro ao buscar veículos da API local');
     }
