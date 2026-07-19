@@ -54,14 +54,17 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
           {/* Logo / Header in Sidebar */}
           <div className="p-6 border-b border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/5">
+              <div className="h-10 w-10 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/5 shrink-0">
                 <Wrench className="h-5 w-5" />
               </div>
-              <div>
-                <h1 className="text-lg font-headline font-black uppercase tracking-tight text-white leading-none">
-                  AUTOLIST <span className="text-sky-400">- MAVC</span>
+              <div className="flex flex-col justify-center">
+                <h1 className="text-xs font-headline font-black uppercase tracking-tight text-white leading-none">
+                  AUTOLIST <span className="text-sky-400">-</span>
                 </h1>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">
+                <span className="text-xs font-headline font-black uppercase tracking-tight text-sky-400 leading-none mt-0.5">
+                  MAVC
+                </span>
+                <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-0.5">
                   Gestão & Vistoria
                 </p>
               </div>
@@ -143,13 +146,21 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
       <div className="flex-1 flex flex-col overflow-hidden h-full">
         {/* Header */}
         <header className="h-16 border-b border-slate-800 bg-slate-900/40 backdrop-blur-md px-4 md:px-8 flex items-center justify-between shrink-0 md:hidden">
-          <div className="flex flex-col justify-center md:hidden">
-            <span className="text-xs font-black uppercase text-white tracking-widest">
-              AUTOLIST - MAVC
-            </span>
-            <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-              Inspeção Veicular & Gestão Financeira
-            </span>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/5 shrink-0">
+              <Wrench className="h-4.5 w-4.5" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <h1 className="text-xs font-headline font-black uppercase tracking-tight text-white leading-none">
+                AUTOLIST <span className="text-sky-400">-</span>
+              </h1>
+              <span className="text-xs font-headline font-black uppercase tracking-tight text-sky-400 leading-none mt-0.5">
+                MAVC
+              </span>
+              <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-0.5">
+                Gestão & Vistoria
+              </p>
+            </div>
           </div>
 
           {/* Mini info and Right-Side Menu Toggle */}
