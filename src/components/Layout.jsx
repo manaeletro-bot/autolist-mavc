@@ -134,54 +134,21 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
                 Portal Gestor
               </button>
             )}
+
+            {/* Botão Sair / Trocar Usuário no Menu */}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 transition-all mt-4"
+            >
+              <LogOut className="h-4 w-4" />
+              Sair (Trocar Usuário)
+            </button>
           </nav>
         </div>
 
         {/* User Profile & Database indicator footer */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/40 space-y-3">
           
-          {/* Card do Usuário Logado */}
-          {currentUser && (
-            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5 overflow-hidden">
-                  <div className="h-8 w-8 bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-xl flex items-center justify-center shrink-0 font-black text-xs uppercase">
-                    {currentUser.name ? currentUser.name.substring(0, 2) : 'US'}
-                  </div>
-                  <div className="truncate">
-                    <p className="text-xs font-bold text-white truncate leading-none">{currentUser.name}</p>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase truncate mt-0.5 leading-none flex items-center gap-1">
-                      <Store className="h-2.5 w-2.5 text-slate-500 shrink-0" />
-                      {currentUser.storeName || 'Lojista'}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleLogout}
-                  title="Sair da Conta"
-                  className="h-8 w-8 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg flex items-center justify-center transition-all shrink-0 ml-1"
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-center justify-between">
-                <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                  currentUser.role === 'admin'
-                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                    : 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
-                }`}>
-                  {currentUser.role === 'admin' ? 'Gestor Admin' : 'Lojista'}
-                </span>
-
-                <span className="text-[8px] text-slate-500 font-bold uppercase truncate max-w-[100px]">
-                  {currentUser.email}
-                </span>
-              </div>
-            </div>
-          )}
-
           {/* Indicador do BD */}
           <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800/80 space-y-2">
             <div className="flex items-center justify-between">
@@ -203,6 +170,62 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
               </button>
             </div>
           </div>
+
+          {/* Card do Usuário Logado / Trocar Usuário (EMBAIXO DO BANCO DE DADOS) */}
+          {currentUser ? (
+            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  <div className="h-8 w-8 bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-xl flex items-center justify-center shrink-0 font-black text-xs uppercase">
+                    {currentUser.name ? currentUser.name.substring(0, 2) : 'US'}
+                  </div>
+                  <div className="truncate">
+                    <p className="text-xs font-bold text-white truncate leading-none">{currentUser.name}</p>
+                    <p className="text-[9px] text-slate-400 font-bold uppercase truncate mt-0.5 leading-none flex items-center gap-1">
+                      <Store className="h-2.5 w-2.5 text-slate-500 shrink-0" />
+                      {currentUser.storeName || 'Lojista'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between">
+                <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                  currentUser.role === 'admin'
+                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                    : 'bg-sky-500/10 text-sky-400 border border-sky-500/20'
+                }`}>
+                  {currentUser.role === 'admin' ? 'Gestor Admin' : 'Lojista'}
+                </span>
+
+                <span className="text-[8px] text-slate-500 font-bold uppercase truncate max-w-[100px]">
+                  {currentUser.email}
+                </span>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sair (Trocar Usuário)
+              </button>
+            </div>
+          ) : (
+            <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Sessão de Usuário</span>
+                <span className="text-[8px] text-amber-400 font-bold uppercase">Não Autenticado</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full py-2 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-sky-500/10"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Entrar / Trocar Usuário
+              </button>
+            </div>
+          )}
 
           <div className="text-center pt-1">
             <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest leading-none">
