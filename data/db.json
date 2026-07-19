@@ -16,10 +16,10 @@
       "resalePrice": "285000",
       "maxDiscountPercent": 5,
       "images": [
-        "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1571127236794-81c0bbfe1ce3?auto=format&fit=crop&w=1200&q=80"
+        "https://upload.wikimedia.org/wikipedia/commons/9/90/2024_Tesla_Model_Y_Long_Range_FWD_in_Pearl_White%2C_front_right.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/e/e3/Tesla_Model_Y_white_%281%29.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/4/4b/Tesla_Model_Y_Dual_Motor_Pearl_White_Multi-Coat_%282%29.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/1/14/Tesla_Model_Y_Dual_Motor_Pearl_White_Multi-Coat_%281%29.jpg"
       ],
       "checklist": {
         "farol_baixo": {
