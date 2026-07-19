@@ -142,8 +142,8 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden h-full">
         {/* Header */}
-        <header className="h-16 border-b border-slate-800 bg-slate-900/40 backdrop-blur-md px-4 md:px-8 flex items-center justify-between shrink-0">
-          <div className="flex flex-col justify-center">
+        <header className="h-16 border-b border-slate-800 bg-slate-900/40 backdrop-blur-md px-4 md:px-8 flex items-center justify-between shrink-0 md:hidden">
+          <div className="flex flex-col justify-center md:hidden">
             <span className="text-xs font-black uppercase text-white tracking-widest">
               AUTOLIST - MAVC
             </span>
