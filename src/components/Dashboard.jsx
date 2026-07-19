@@ -241,23 +241,13 @@ function VehicleCard({ vehicle, onClick, onDelete, isSoldStyle = false }) {
           </div>
         </div>
 
-        {/* Financial info */}
+        {/* Financial info: Apenas Preço de Revenda */}
         <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-slate-850/60 pt-3 md:pt-0">
-          <div className="flex gap-6 text-left">
-            <div>
-              <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider leading-none">Investimento</p>
-              <p className="text-xs font-bold text-slate-200 mt-1 leading-none">{formatCurrency(totalInvestedVehicle)}</p>
-            </div>
-            <div>
-              <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider leading-none">Preço Revenda</p>
-              <p className="text-xs font-bold text-slate-200 mt-1 leading-none">{formatCurrency(vehicle.resalePrice)}</p>
-            </div>
-            <div>
-              <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider leading-none">Lucro Estimado</p>
-              <p className={`text-xs font-black mt-1 leading-none ${profitVehicle >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {formatCurrency(profitVehicle)} ({profitPercent.toFixed(0)}%)
-              </p>
-            </div>
+          <div className="text-left md:text-right">
+            <p className="text-[8px] text-slate-500 font-black uppercase tracking-wider leading-none">Preço Revenda</p>
+            <p className="text-sm font-headline font-black text-emerald-400 mt-1 leading-none tracking-tight">
+              {formatCurrency(vehicle.resalePrice)}
+            </p>
           </div>
         </div>
       </div>
