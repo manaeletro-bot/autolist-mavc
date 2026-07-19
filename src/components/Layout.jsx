@@ -233,17 +233,8 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
             </div>
           </div>
 
-          {/* Mini info and Right-Side Menu Toggle */}
+          {/* Right-Side Menu Toggle */}
           <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
-            {currentUser && (
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-xl">
-                <span className="text-[10px] text-slate-200 font-bold truncate max-w-[80px]">{currentUser.name}</span>
-                <button onClick={handleLogout} className="text-slate-400 hover:text-red-400">
-                  <LogOut className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
-
             {/* Hamburger menu button for mobile */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
