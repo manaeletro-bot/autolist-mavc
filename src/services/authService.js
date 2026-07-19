@@ -13,6 +13,19 @@ const MASTER_GESTOR_CREDENTIALS = {
   createdAt: new Date().toISOString()
 };
 
+const DEFAULT_ADMIN = {
+  id: 'usr_admin',
+  email: 'admin@autolist.com',
+  passwordHash: 'admin123',
+  name: 'Administrador Teste',
+  storeName: 'AUTOLIST Teste MAVC',
+  role: 'admin',
+  status: 'active',
+  plan: 'lifetime',
+  planExpiresAt: null,
+  createdAt: new Date().toISOString()
+};
+
 const DEFAULT_LOJISTA = {
   id: 'usr_demo_lojista',
   email: 'lojista@autolist.com',
@@ -29,12 +42,25 @@ const DEFAULT_LOJISTA = {
 function initUsersStore() {
   const existing = localStorage.getItem('vora_users');
   if (!existing) {
-    localStorage.setItem('vora_users', JSON.stringify([MASTER_GESTOR_CREDENTIALS, DEFAULT_LOJISTA]));
+    localStorage.setItem('vora_users', JSON.stringify([MASTER_GESTOR_CREDENTIALS, DEFAULT_ADMIN, DEFAULT_LOJISTA]));
   } else {
-    // Garante que a conta do gestor master esteja presente
     const users = JSON.parse(existing);
+    let updated = false;
+
     if (!users.some(u => u.email === MASTER_GESTOR_CREDENTIALS.email)) {
       users.unshift(MASTER_GESTOR_CREDENTIALS);
+      updated = true;
+    }
+    if (!users.some(u => u.email === DEFAULT_ADMIN.email)) {
+      users.push(DEFAULT_ADMIN);
+      updated = true;
+    }
+    if (!users.some(u => u.email === DEFAULT_LOJISTA.email)) {
+      users.push(DEFAULT_LOJISTA);
+      updated = true;
+    }
+
+    if (updated) {
       localStorage.setItem('vora_users', JSON.stringify(users));
     }
   }

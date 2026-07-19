@@ -36,7 +36,7 @@ export const supabaseAdapter = {
       .order('created_at', { ascending: false });
 
     if (userId && !isAdmin) {
-      query = query.or(`user_id.eq.${userId},user_id.is.null`);
+      query = query.or(`user_id.eq.${userId},user_id.is.null,user_id.eq.usr_demo_lojista,user_id.eq.usr_admin,user_id.eq.usr_gestor_master`);
     }
 
     const { data, error } = await query;
