@@ -270,29 +270,13 @@ export function AuthModal({ onLoginSuccess }) {
             <div className="pt-3 border-t border-slate-800 space-y-2 text-center">
               <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Atalhos Rápidos para Teste</p>
               
-              <div className="grid grid-cols-3 gap-2">
+              <div>
                 <button
                   type="button"
                   onClick={handleQuickLojistaLogin}
-                  className="py-2 bg-slate-800 hover:bg-slate-750 text-sky-400 rounded-xl text-[9px] font-black uppercase tracking-wider border border-slate-700 transition-all text-center"
+                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-sky-400 rounded-xl text-xs font-black uppercase tracking-wider border border-slate-700 transition-all text-center"
                 >
                   Lojista Teste
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleQuickAdminLogin}
-                  className="py-2 bg-slate-800 hover:bg-slate-750 text-emerald-400 rounded-xl text-[9px] font-black uppercase tracking-wider border border-slate-700 transition-all text-center"
-                >
-                  Admin Teste
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleQuickGestorLogin}
-                  className="py-2 bg-slate-800 hover:bg-slate-750 text-amber-400 rounded-xl text-[9px] font-black uppercase tracking-wider border border-slate-700 transition-all text-center"
-                >
-                  Gestor Master
                 </button>
               </div>
 
