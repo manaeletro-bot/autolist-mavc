@@ -1,4 +1,14 @@
 {
+  "rewrites": [
+    {
+      "source": "/gestor",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/gestor/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "crons": [
     {
       "path": "/api/keep-alive",
