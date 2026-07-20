@@ -34,8 +34,8 @@ const DEFAULT_LOJISTA = {
   storeName: 'Auto Motors MAVC',
   role: 'user',
   status: 'active',
-  plan: 'test_2d',
-  planExpiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+  plan: 'lifetime',
+  planExpiresAt: null,
   createdAt: new Date().toISOString()
 };
 
@@ -54,32 +54,24 @@ const EXPIRED_LOJISTA = {
 
 function initUsersStore() {
   const existing = localStorage.getItem('vora_users');
-  if (!existing) {
-    localStorage.setItem('vora_users', JSON.stringify([MASTER_GESTOR_CREDENTIALS, DEFAULT_ADMIN, DEFAULT_LOJISTA, EXPIRED_LOJISTA]));
-  } else {
-    const users = JSON.parse(existing);
-    let updated = false;
+  let users = existing ? JSON.parse(existing) : [];
 
-    if (!users.some(u => u.email === MASTER_GESTOR_CREDENTIALS.email)) {
-      users.unshift(MASTER_GESTOR_CREDENTIALS);
-      updated = true;
-    }
-    if (!users.some(u => u.email === DEFAULT_ADMIN.email)) {
-      users.push(DEFAULT_ADMIN);
-      updated = true;
-    }
-    if (!users.some(u => u.email === DEFAULT_LOJISTA.email)) {
-      users.push(DEFAULT_LOJISTA);
-      updated = true;
-    }
-    if (!users.some(u => u.email === EXPIRED_LOJISTA.email)) {
-      users.push(EXPIRED_LOJISTA);
-      updated = true;
-    }
+  const defaultAccounts = [MASTER_GESTOR_CREDENTIALS, DEFAULT_ADMIN, DEFAULT_LOJISTA, EXPIRED_LOJISTA];
+  let updated = false;
 
-    if (updated) {
-      localStorage.setItem('vora_users', JSON.stringify(users));
+  for (const acc of defaultAccounts) {
+    const idx = users.findIndex(u => (u.email || '').trim().toLowerCase() === acc.email.toLowerCase());
+    if (idx === -1) {
+      users.push(acc);
+      updated = true;
+    } else if (users[idx].id !== acc.id) {
+      users[idx].id = acc.id;
+      updated = true;
     }
+  }
+
+  if (updated || !existing) {
+    localStorage.setItem('vora_users', JSON.stringify(users));
   }
 }
 
@@ -138,14 +130,28 @@ export const authService = {
     const users = JSON.parse(localStorage.getItem('vora_users') || '[]');
     const cleanEmail = (email || '').trim().toLowerCase();
 
-    // Se for o usuário de teste lojista, reinicia a sessão de teste para os veículos padrão
-    if (cleanEmail === 'lojista@autolist.com') {
+    // Se for o usuário de teste lojista ou expirado, reinicia a sessão de teste para os veículos padrão
+    if (cleanEmail === 'lojista@autolist.com' || cleanEmail === 'expirado@autolist.com') {
       this.resetDemoSession();
     }
 
     // Permite login com credenciais do Gestor Master no painel do usuário
     if (cleanEmail === MASTER_GESTOR_CREDENTIALS.email && password === MASTER_GESTOR_CREDENTIALS.passwordHash) {
       const sessionUser = { ...MASTER_GESTOR_CREDENTIALS };
+      delete sessionUser.passwordHash;
+      localStorage.setItem('vora_active_user', JSON.stringify(sessionUser));
+      return sessionUser;
+    }
+
+    if (cleanEmail === 'lojista@autolist.com' && password === '123456') {
+      const sessionUser = { ...DEFAULT_LOJISTA };
+      delete sessionUser.passwordHash;
+      localStorage.setItem('vora_active_user', JSON.stringify(sessionUser));
+      return sessionUser;
+    }
+
+    if (cleanEmail === 'expirado@autolist.com' && password === '123456') {
+      const sessionUser = { ...EXPIRED_LOJISTA };
       delete sessionUser.passwordHash;
       localStorage.setItem('vora_active_user', JSON.stringify(sessionUser));
       return sessionUser;
@@ -203,10 +209,7 @@ export const authService = {
   },
 
   logout() {
-    const active = this.getCurrentUser();
-    if (active && (active.id === 'usr_demo_lojista' || active.email === 'lojista@autolist.com')) {
-      this.resetDemoSession();
-    }
+    this.resetDemoSession();
     localStorage.removeItem('vora_active_user');
   },
 

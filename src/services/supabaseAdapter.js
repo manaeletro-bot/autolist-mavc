@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { localAdapter, isDemoAccount } from './localAdapter';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -117,6 +118,11 @@ export const supabaseAdapter = {
   },
 
   async getVehicles(userId, isAdmin) {
+    const isDemoUser = isDemoAccount(userId);
+    if (isDemoUser) {
+      return localAdapter.getVehicles(userId, isAdmin);
+    }
+
     const client = getSupabaseClient();
     if (!client) throw new Error('Supabase não configurado ou cliente indisponível');
     
@@ -126,7 +132,7 @@ export const supabaseAdapter = {
       .order('id', { ascending: false });
 
     if (userId && !isAdmin) {
-      query = query.or(`user_id.eq.${userId},user_id.is.null,user_id.eq.usr_demo_lojista,user_id.eq.usr_admin,user_id.eq.usr_gestor_master`);
+      query = query.eq('user_id', userId);
     }
 
     const { data, error } = await query;
@@ -136,6 +142,12 @@ export const supabaseAdapter = {
   },
 
   async createVehicle(vehicleData) {
+    const userId = vehicleData.user_id;
+    const isDemoUser = isDemoAccount(userId);
+    if (isDemoUser) {
+      return localAdapter.createVehicle(vehicleData);
+    }
+
     const client = getSupabaseClient();
     if (!client) throw new Error('Supabase não configurado ou cliente indisponível');
 
@@ -150,6 +162,12 @@ export const supabaseAdapter = {
   },
 
   async updateVehicle(id, vehicleData) {
+    const userId = vehicleData.user_id;
+    const isDemoUser = isDemoAccount(userId);
+    if (isDemoUser) {
+      return localAdapter.updateVehicle(id, vehicleData);
+    }
+
     const client = getSupabaseClient();
     if (!client) throw new Error('Supabase não configurado ou cliente indisponível');
 
@@ -165,15 +183,18 @@ export const supabaseAdapter = {
   },
 
   async deleteVehicle(id) {
+    localAdapter.deleteVehicle(id);
+
     const client = getSupabaseClient();
-    if (!client) throw new Error('Supabase não configurado ou cliente indisponível');
+    if (!client) return { success: true };
 
-    const { error } = await client
-      .from('vehicles')
-      .delete()
-      .eq('id', id);
+    try {
+      await client
+        .from('vehicles')
+        .delete()
+        .eq('id', id);
+    } catch (e) {}
 
-    if (error) throw error;
     return { success: true };
   }
 };

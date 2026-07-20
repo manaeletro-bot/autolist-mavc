@@ -4,7 +4,13 @@ Este arquivo registra a linha do tempo e a evolução das versões do sistema AU
 
 ## Linha do Tempo de Versões
 
-### Versão 2.3 - Controle de Assinaturas, Bloqueio de Teste (2 Dias) & iOS 18 Glassmorphism (Atual)
+### Versão 2.4 - Regra de Isolamento de Novos Lojistas & Sandbox Auto-Reset de Teste (Atual)
+*   **Foco:** Isolamento absoluto entre contas reais (iniciam com 0 veículos) e a Sandbox de Testes (restaura 6 veículos padrão a cada login/logout).
+*   **Melhorias:**
+    *   **Novos Lojistas Cadastrados:** Iniciam obrigatoriamente com o banco zerado (`[]`), salvando e persistindo todos os seus veículos sob o seu próprio `user_id` (tanto no banco local quanto no Supabase Cloud via `.eq('user_id', userId)`).
+    *   **Sandbox de Demonstração (`lojista@autolist.com` e `expirado@autolist.com`):** Permite testes, cadastros, alterações e vendas temporárias, mas executa o **auto-reset** automático ao deslogar ou logar novamente, restaurando sempre a vitrine inicial com os 6 veículos de teste (`DEFAULT_SEED_VEHICLES`).
+
+### Versão 2.3 - Controle de Assinaturas, Bloqueio de Teste (2 Dias) & iOS 18 Glassmorphism
 *   **Foco:** Implementação de limite rígido de 2 dias de teste para lojistas, bloqueio de tela por expiração e suporte direto via WhatsApp.
 *   **Melhorias:**
     *   Definição do prazo padrão de teste gratuito em **2 dias** (`test_2d`) no cadastro e no Portal do Gestor.
