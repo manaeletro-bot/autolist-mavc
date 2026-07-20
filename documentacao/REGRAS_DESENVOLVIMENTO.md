@@ -51,4 +51,10 @@ Este arquivo descreve as regras e diretrizes que devem ser obedecidas por qualqu
 ### Regra 15: Proteção de Credenciais e Isolamento de Projetos Cloud
 *   Qualquer chave privada, senha de banco de dados, token PAT ou URL interna gerada durante o provisionamento de novos ambientes deve ser armazenada estritamente em arquivos de documentação locais e protegidos no `.gitignore` (ex: `CREDENCIAIS_ACESSO.md`). É terminantemente proibido subir relatórios de senhas ou arquivos de chave sensíveis no versionamento público do GitHub. Além disso, deploys e bancos de dados cloud devem ser criados de forma 100% independente para cada produto.
 
+### Regra 16: Proporção 16:9 e Adaptação Responsiva de Mídias
+*   Todas as fotos de veículos exibidas nos cards e galerias devem possuir proporção horizontal landscape 16:9 (`1280x720`). Mídias gravadas ou enviadas originalmente em orientação retrato (vertical) devem ser adaptadas com fundo preenchido/desfocado de forma a evitar que a frente ou a traseira dos veículos sejam cortadas pela propriedade CSS `object-cover`.
+
+### Regra 17: Integração de Navegação Interna no Cabeçalho Mobile
+*   Em dispositivos móveis, quando o usuário abre os detalhes de um veículo, a barra de título superior fixa (`Layout.jsx`) deve assumir a identidade do veículo (Marca, Placa, Modelo e Botão Voltar). Isso elimina duplicidades visuais e permite elevar os botões primários de ação (`Vender`, `Baixar`, `Excluir`) para o topo da área útil de conteúdo.
+
 

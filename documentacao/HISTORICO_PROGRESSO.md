@@ -4,7 +4,16 @@ Este arquivo registra a linha do tempo e a evolução das versões do sistema AU
 
 ## Linha do Tempo de Versões
 
-### Versão 2.0 - Infraestrutura Cloud Independente & Renomeação de Marca (Atual)
+### Versão 2.1 - Otimizações de UX Mobile, Integridade de Mídia e Cabeçalho Dinâmico (Atual)
+*   **Foco:** Aperfeiçoamento da experiência mobile, integração do cabeçalho de veículos e conversão de mídias para proporção 16:9.
+*   **Melhorias:**
+    *   Simplificação do `VehicleCard` no Dashboard: remoção do botão isolado "Ver" (card 100% clicável), adição de badge de Cor e exibição limpa focada no Preço de Revenda.
+    *   Correção de truncamento e corte de texto nos subtítulos das seções sanfona (Ficha técnica, Checklist, etc.) em celulares com `break-words leading-tight`.
+    *   Integração do título do veículo (Marca, Placa, Modelo) e botão de voltar no cabeçalho superior fixo (`Layout.jsx`) quando a visualização de detalhes está ativa no mobile.
+    *   Elevação dos botões de ação (`Vender`, `Baixar`, `Excluir`) para a linha de topo do conteúdo em `VehicleDetails.jsx`.
+    *   Sincronização e padronização das mídias locais em `public/images/` para todos os 6 veículos de teste, convertendo fotos em orientação retrato para 16:9 landscape (`1280x720`) com desfoque de fundo.
+
+### Versão 2.0 - Infraestrutura Cloud Independente & Renomeação de Marca
 *   **Foco:** Publicação do projeto em ambiente cloud 100% isolado sob o novo nome **AUTOLIST - MAVC**.
 *   **Melhorias:**
     *   Renomeação da marca e identificadores do projeto de AUTOLIST - MEVC para **AUTOLIST - MAVC**.

@@ -77,4 +77,11 @@ Roteiro de testes de regressão antes de entregas ou encerramentos de milestones
 - [x] O Supabase Cloud possui a tabela `vehicles` criada com RLS ativo e permissões de SELECT/INSERT/UPDATE/DELETE?
 - [x] O arquivo `CREDENCIAIS_ACESSO.md` está ignorado pelo `.gitignore` e não foi enviado no commit do GitHub?
 
+## Testes de UX Mobile, Integridade de Mídia e Cabeçalho Dinâmico (V2.1)
+- [x] Os cards de veículo no Dashboard exibem o badge de Cor, o Preço de Resumo e são 100% clicáveis sem dependência do botão "Ver"?
+- [x] Os subtítulos de seções sanfona em `VehicleDetails.jsx` não são cortados no celular, realizando a quebra com `break-words leading-tight`?
+- [x] Ao entrar nos detalhes de um veículo no mobile, o botão de voltar e os dados de Marca, Placa e Modelo assumem o topo fixo em `Layout.jsx`?
+- [x] Os botões de ação (`Vender`, `Baixar`, `Excluir`) sobem para a primeira linha do conteúdo de detalhes no mobile, aproveitando a área útil da tela?
+- [x] Todas as fotos de teste da pasta local `public/images/` para os 6 veículos estão formatadas no aspecto landscape 16:9 (`1280x720`) sem cortes indesejados de `object-cover`?
+
 
