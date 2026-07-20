@@ -321,48 +321,48 @@ export function GestorPortal() {
 
       </div>
 
-      {/* Main Table Card */}
-      <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+      {/* Main Table Card / Mobile View Wrapper */}
+      <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 p-4 md:p-6 rounded-3xl space-y-4 shadow-xl">
         
         {/* Controls Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
             <button
               onClick={() => setFilterPlan('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                filterPlan === 'all' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+              className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
+                filterPlan === 'all' ? 'bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20' : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
               }`}
             >
               Todos ({users.length})
             </button>
             <button
               onClick={() => setFilterPlan('active')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                filterPlan === 'active' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+              className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
+                filterPlan === 'active' ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
               }`}
             >
               Ativos ({activeCount})
             </button>
             <button
               onClick={() => setFilterPlan('suspended')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                filterPlan === 'suspended' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+              className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
+                filterPlan === 'suspended' ? 'bg-red-500 text-white shadow-md shadow-red-500/20' : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
               }`}
             >
               Suspensos ({suspendedCount})
             </button>
             <button
               onClick={() => setFilterPlan('test_3d')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                filterPlan === 'test_3d' ? 'bg-purple-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+              className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
+                filterPlan === 'test_3d' ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20' : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
               }`}
             >
-              Teste 3d ({testCount})
+              Teste 2d ({testCount})
             </button>
             <button
               onClick={() => setFilterPlan('lifetime')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                filterPlan === 'lifetime' ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+              className={`px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0 whitespace-nowrap ${
+                filterPlan === 'lifetime' ? 'bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20' : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
               }`}
             >
               Vitalício ({lifetimeCount})
@@ -381,8 +381,121 @@ export function GestorPortal() {
           </div>
         </div>
 
-        {/* Lojistas Table */}
-        <div className="overflow-x-auto rounded-2xl border border-slate-800">
+        {/* Mobile Responsive Card View (Visible on Mobile, Hidden on Desktop) */}
+        <div className="space-y-3 md:hidden">
+          {filteredUsers.length === 0 ? (
+            <div className="p-8 bg-slate-950/60 border border-slate-800 rounded-2xl text-center text-slate-500 font-bold uppercase tracking-wider text-xs">
+              Nenhum lojista encontrado para os filtros selecionados.
+            </div>
+          ) : (
+            filteredUsers.map((u) => {
+              const daysRemaining = getDaysRemaining(u.planExpiresAt);
+              const isExpired = daysRemaining !== null && daysRemaining <= 0;
+
+              return (
+                <div key={u.id} className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+                  {/* Header Card: Avatar, Name, Store & Status */}
+                  <div className="flex items-start justify-between gap-2 border-b border-slate-800/80 pb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-10 w-10 bg-slate-800 rounded-xl flex items-center justify-center font-black text-amber-400 uppercase border border-slate-700 shrink-0">
+                        {u.name ? u.name.substring(0, 2) : 'LO'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-white leading-tight truncate text-sm">{u.name}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-0.5 flex items-center gap-1 truncate">
+                          <Store className="h-3 w-3 text-slate-500 shrink-0" /> {u.storeName || 'Sem Loja'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border shrink-0 ${
+                      u.status === 'active'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-400 border-red-500/20'
+                    }`}>
+                      {u.status === 'active' ? 'Ativo' : 'Suspenso'}
+                    </span>
+                  </div>
+
+                  {/* Details Grid: Email & Plan & Expiration */}
+                  <div className="space-y-2 text-xs">
+                    <div className="bg-slate-900/80 border border-slate-800/80 p-2.5 rounded-xl flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase text-slate-400 shrink-0">E-mail:</span>
+                      <span className="font-medium text-slate-200 truncate select-all text-[11px]">{u.email}</span>
+                    </div>
+
+                    <div className="bg-slate-900/80 border border-slate-800/80 p-2.5 rounded-xl flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase text-slate-400 shrink-0">Licença:</span>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${
+                        u.plan === 'lifetime'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                          : u.plan === 'yearly'
+                          ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                          : u.plan === 'monthly'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          : 'bg-sky-500/10 text-sky-400 border-sky-500/20'
+                      }`}>
+                        {u.plan === 'lifetime' && <Award className="h-3 w-3" />}
+                        {u.plan === 'yearly' && <Calendar className="h-3 w-3" />}
+                        {u.plan === 'monthly' && <CheckCircle2 className="h-3 w-3" />}
+                        {u.plan === 'test_3d' && <Clock className="h-3 w-3" />}
+                        {u.plan === 'lifetime' ? 'Vitalício' : u.plan === 'yearly' ? 'Plano Anual' : u.plan === 'monthly' ? 'Plano Mensal' : 'Teste (2 Dias)'}
+                      </span>
+                    </div>
+
+                    <div className="bg-slate-900/80 border border-slate-800/80 p-2.5 rounded-xl flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase text-slate-400 shrink-0">Validade:</span>
+                      {u.plan === 'lifetime' ? (
+                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                          ♾️ Sem Expiração
+                        </span>
+                      ) : isExpired ? (
+                        <span className="text-[10px] font-black text-red-400 uppercase tracking-widest flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" /> Expirado
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-300">
+                          {daysRemaining} dia(s) restante(s)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Touch Action Buttons */}
+                  <div className="pt-1 flex items-center gap-2">
+                    <button
+                      onClick={() => setSelectedUserForPlan(u)}
+                      className="flex-1 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all text-center"
+                    >
+                      Alterar Licença
+                    </button>
+
+                    <button
+                      onClick={() => handleToggleStatus(u)}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border text-center flex items-center justify-center gap-1 ${
+                        u.status === 'active'
+                          ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                          : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                      }`}
+                    >
+                      {u.status === 'active' ? 'Suspender' : 'Ativar'}
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteUser(u)}
+                      className="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-slate-700 rounded-xl transition-all"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Lojistas Table (Hidden on Mobile, Visible on Desktop) */}
+        <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-950/80 text-slate-400 uppercase tracking-widest font-black text-[9px] border-b border-slate-800">
               <tr>
@@ -451,7 +564,7 @@ export function GestorPortal() {
                           {u.plan === 'yearly' && <Calendar className="h-3 w-3" />}
                           {u.plan === 'monthly' && <CheckCircle2 className="h-3 w-3" />}
                           {u.plan === 'test_3d' && <Clock className="h-3 w-3" />}
-                          {u.plan === 'lifetime' ? 'Vitalício' : u.plan === 'yearly' ? 'Plano Anual (1 Ano)' : u.plan === 'monthly' ? 'Plano Mensal (30 Dias)' : 'Teste (3 Dias)'}
+                          {u.plan === 'lifetime' ? 'Vitalício' : u.plan === 'yearly' ? 'Plano Anual (1 Ano)' : u.plan === 'monthly' ? 'Plano Mensal (30 Dias)' : 'Teste (2 Dias)'}
                         </span>
                       </td>
 
@@ -513,7 +626,7 @@ export function GestorPortal() {
       {/* MODAL: Alterar Licença / Plano do Lojista */}
       {selectedUserForPlan && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
                 <h3 className="text-sm font-headline font-black uppercase text-white">Alterar Licença do Lojista</h3>
@@ -534,8 +647,8 @@ export function GestorPortal() {
                     <Clock className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-white uppercase">Teste de 3 Dias</p>
-                    <p className="text-[10px] text-slate-400">Libera acesso temporário por 72 horas</p>
+                    <p className="text-xs font-black text-white uppercase">Teste de 2 Dias</p>
+                    <p className="text-[10px] text-slate-400">Libera acesso temporário por 48 horas</p>
                   </div>
                 </div>
               </button>
@@ -592,7 +705,7 @@ export function GestorPortal() {
       {/* MODAL: Cadastrar Novo Lojista pelo Gestor */}
       {showAddUserModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-sm font-headline font-black uppercase text-white flex items-center gap-2">
                 <User className="h-4 w-4 text-amber-400" /> Cadastrar Novo Lojista
