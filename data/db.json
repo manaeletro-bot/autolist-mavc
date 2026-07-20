@@ -16,10 +16,11 @@
       "resalePrice": "285000",
       "maxDiscountPercent": 5,
       "images": [
-        "https://upload.wikimedia.org/wikipedia/commons/9/90/2024_Tesla_Model_Y_Long_Range_FWD_in_Pearl_White%2C_front_right.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/e/e3/Tesla_Model_Y_white_%281%29.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/4/4b/Tesla_Model_Y_Dual_Motor_Pearl_White_Multi-Coat_%282%29.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/1/14/Tesla_Model_Y_Dual_Motor_Pearl_White_Multi-Coat_%281%29.jpg"
+        "/images/tesla/tesla_1.jpg",
+        "/images/tesla/tesla_2.jpg",
+        "/images/tesla/tesla_3.jpg",
+        "/images/tesla/tesla_4.jpg",
+        "/images/tesla/tesla_5.jpg"
       ],
       "checklist": {
         "farol_baixo": {
@@ -126,9 +127,10 @@
       "generalNotes": "Veículo completo com revisões em dia.",
       "fuelType": "flex",
       "images": [
-        "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80"
+        "/images/focus/focus_1.jpg",
+        "/images/focus/focus_2.jpg",
+        "/images/focus/focus_3.jpg",
+        "/images/focus/focus_4.jpg"
       ],
       "purchaseMode": "full",
       "purchaseTradeInDesc": "",
@@ -171,9 +173,10 @@
       "generalNotes": "Estado excelente de conservação, única dona.",
       "updatedAt": "2026-07-19T17:02:48.106Z",
       "images": [
-        "https://images.unsplash.com/photo-1609521263047-f8d205293f24?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1609521263047-f8d205293f24?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1609521263047-f8d205293f24?auto=format&fit=crop&w=800&q=80"
+        "/images/hrv/hrv_1.webp",
+        "/images/hrv/hrv_2.webp",
+        "/images/hrv/hrv_3.webp",
+        "/images/hrv/hrv_4.webp"
       ]
     },
     {
@@ -208,9 +211,10 @@
       "repairs": [],
       "generalNotes": "SUV de 7 lugares completo em excelente estado.",
       "images": [
-        "https://images.unsplash.com/photo-1559416523-140ddc3d238c?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1559416523-140ddc3d238c?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1559416523-140ddc3d238c?auto=format&fit=crop&w=800&q=80"
+        "/images/sw4/sw4_1.jpg",
+        "/images/sw4/sw4_2.webp",
+        "/images/sw4/sw4_3.jpg",
+        "/images/sw4/sw4_4.webp"
       ]
     },
     {
@@ -244,9 +248,10 @@
       "repairs": [],
       "generalNotes": "Veículo elétrico semi-novo, bateria 100% de saúde.",
       "images": [
-        "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80"
+        "/images/byd/byd_1.jpg",
+        "/images/byd/byd_2.jpg",
+        "/images/byd/byd_3.jpg",
+        "/images/byd/byd_4.webp"
       ]
     },
     {
@@ -288,9 +293,10 @@
       "purchaseInstallmentsPaid": 0,
       "purchaseInstallmentPrice": 0,
       "images": [
-        "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&w=800&q=80"
+        "/images/onix/onix_1.jpg",
+        "/images/onix/onix_2.jpg",
+        "/images/onix/onix_3.jpg",
+        "/images/onix/onix_4.jpg"
       ]
     }
   ]
