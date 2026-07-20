@@ -39,10 +39,23 @@ const DEFAULT_LOJISTA = {
   createdAt: new Date().toISOString()
 };
 
+const EXPIRED_LOJISTA = {
+  id: 'usr_demo_expirado',
+  email: 'expirado@autolist.com',
+  passwordHash: '123456',
+  name: 'Lojista Teste Expirado',
+  storeName: 'Revenda Auto Motors (Expirada)',
+  role: 'user',
+  status: 'active',
+  plan: 'test_2d',
+  planExpiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+};
+
 function initUsersStore() {
   const existing = localStorage.getItem('vora_users');
   if (!existing) {
-    localStorage.setItem('vora_users', JSON.stringify([MASTER_GESTOR_CREDENTIALS, DEFAULT_ADMIN, DEFAULT_LOJISTA]));
+    localStorage.setItem('vora_users', JSON.stringify([MASTER_GESTOR_CREDENTIALS, DEFAULT_ADMIN, DEFAULT_LOJISTA, EXPIRED_LOJISTA]));
   } else {
     const users = JSON.parse(existing);
     let updated = false;
@@ -57,6 +70,10 @@ function initUsersStore() {
     }
     if (!users.some(u => u.email === DEFAULT_LOJISTA.email)) {
       users.push(DEFAULT_LOJISTA);
+      updated = true;
+    }
+    if (!users.some(u => u.email === EXPIRED_LOJISTA.email)) {
+      users.push(EXPIRED_LOJISTA);
       updated = true;
     }
 

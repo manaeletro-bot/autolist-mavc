@@ -72,6 +72,19 @@ export function AuthModal({ onLoginSuccess }) {
     }
   };
 
+  const handleQuickExpiredLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const user = await authService.login('expirado@autolist.com', '123456');
+      onLoginSuccess(user);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleQuickAdminLogin = async () => {
     setError('');
     setLoading(true);
@@ -270,13 +283,20 @@ export function AuthModal({ onLoginSuccess }) {
             <div className="pt-3 border-t border-slate-800 space-y-2 text-center">
               <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Atalhos Rápidos para Teste</p>
               
-              <div>
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={handleQuickLojistaLogin}
                   className="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-sky-400 rounded-xl text-xs font-black uppercase tracking-wider border border-slate-700 transition-all text-center"
                 >
                   Lojista Teste
+                </button>
+                <button
+                  type="button"
+                  onClick={handleQuickExpiredLogin}
+                  className="w-full py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-xl text-xs font-black uppercase tracking-wider border border-rose-500/30 transition-all text-center flex items-center justify-center gap-1"
+                >
+                  <span>🔴 Ver Expirado</span>
                 </button>
               </div>
 
