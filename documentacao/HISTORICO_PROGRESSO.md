@@ -4,7 +4,15 @@ Este arquivo registra a linha do tempo e a evolução das versões do sistema AU
 
 ## Linha do Tempo de Versões
 
-### Versão 2.4 - Regra de Isolamento de Novos Lojistas & Sandbox Auto-Reset de Teste (Atual)
+### Versão 2.8 - Otimização de UX para Campos Numéricos & Redesign Claro da Seção de Débitos (Atual)
+*   **Foco:** Eliminação de atrito de digitação em valores numéricos ("zero preso") e aumento de contraste visual em subformulários financeiros.
+*   **Melhorias:**
+    *   **Auto-Seleção em Foco:** Implementada a propriedade `onFocus={(e) => e.target.select()}` em todos os campos numéricos de finanças, vendas, KM e reparos (`VehicleDetails.jsx`, `VehicleForm.jsx`, `RepairsTab.jsx`).
+    *   **Fim do "Zero Preso":** Limpeza do estado inicial de números zerados para strings vazias (`''`), permitindo digitação instantânea sem acúmulo de caracteres.
+    *   **Redesign da Seção de Débitos & Documentação:** Substituição do bloco escuro por container claro (`bg-slate-50/70`), contorno fino "fio de cabelo" (`border border-slate-200`), labels em preto puro (`text-slate-900 font-bold`) e inputs em fundo branco puro (`bg-white`).
+    *   **Padronização de Ação:** Botões de venda padronizados em tom Verde Esmeralda (`bg-emerald-500`) e remoção de classes utilitárias inválidas do Tailwind.
+
+### Versão 2.4 - Regra de Isolamento de Novos Lojistas & Sandbox Auto-Reset de Teste
 *   **Foco:** Isolamento absoluto entre contas reais (iniciam com 0 veículos) e a Sandbox de Testes (restaura 6 veículos padrão a cada login/logout).
 *   **Melhorias:**
     *   **Novos Lojistas Cadastrados:** Iniciam obrigatoriamente com o banco zerado (`[]`), salvando e persistindo todos os seus veículos sob o seu próprio `user_id` (tanto no banco local quanto no Supabase Cloud via `.eq('user_id', userId)`).

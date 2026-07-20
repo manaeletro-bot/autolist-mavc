@@ -63,5 +63,11 @@ Este arquivo descreve as regras e diretrizes que devem ser obedecidas por qualqu
 ### Regra 19: Padrão iOS 18 Glassmorphism e Isolamento de Sobrescritas CSS
 *   Modais de bloqueio e avisos críticos de sistema devem utilizar a linguagem **iOS 18 Glassmorphism Dark** (preto profundo translúcido `bg-zinc-950/80 backdrop-blur-3xl`, brilhos neon sutis e tipografia em branco puro `#FFFFFF`). Qualquer modal que possa ultrapassar a altura da viewport deve conter limite `max-h-[90vh]` e rolagem vertical nativa (`overflow-y-auto scrollbar-thin`). Além disso, para evitar que regras de tema claro substituam cores escuras em modais, a classe de contexto (ex: `lock-mode`) deve ser aplicada ao `body` e isolada no `index.css`.
 
+### Regra 20: Auto-Seleção Instantânea em Campos Numéricos (`onFocus select`)
+*   Todo e qualquer campo de texto ou número destinado a valores financeiros (preços, parcelas, débitos, descontos, KM) deve obrigatoriamente implementar a propriedade `onFocus={(e) => e.target.select()}` e aceitar estado inicial de string vazia (`''`). Isso garante que ao clicar ou tocar na caixa de entrada, o valor existente seja 100% selecionado para substituição direta instantânea sem atrito de ter que apagar zeros residuais.
+
+### Regra 21: Padrão de Alto Contraste para Subformulários (Estilo Limpo)
+*   Caixas e subgrupos de formulários (como Débitos e Documentação) não devem ser pintados com fundos escuros pesados (`bg-slate-900`/`bg-slate-950`). Devem utilizar fundo suave claro (`bg-slate-50/70`), contorno fino de 1px ("fio de cabelo" `border-slate-200`), rótulos em preto puro (`text-slate-900 font-bold`) e campos de texto em fundo branco puro (`bg-white`) com bordas bem delineadas, assegurando leitura perfeita em dispositivos móveis sob luz solar ou temas claros.
+
 
 

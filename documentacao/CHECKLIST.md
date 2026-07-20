@@ -91,7 +91,12 @@ Roteiro de testes de regressão antes de entregas ou encerramentos de milestones
 - [x] A modal de bloqueio utiliza a estética **iOS 18 Glassmorphism Dark** (`bg-zinc-950/80 backdrop-blur-3xl`, brilhos neon e textos em branco puro `#FFFFFF`)?
 - [x] A classe `.lock-mode` é aplicada ao `body` durante a modal, isolando e prevenindo qualquer sobreposição de cores de tema claro?
 - [x] Em telas pequenas e dispositivos móveis, a modal de bloqueio possui suporte completo à rolagem vertical suave (`max-h-[90vh] overflow-y-auto scrollbar-thin`) sem cortar nenhum elemento visual ou botão de ação?
-- [x] O atalho `🔴 Ver Expirado` na modal de login permite testar instantaneamente o comportamento da tela de bloqueio localmente?
+## Testes de UX de Inputs Numéricos e Redesign de Débitos (V2.8)
+- [x] Ao clicar ou tocar em qualquer campo numérico de finanças, KM ou reparos, o valor contido é 100% selecionado via `onFocus={(e) => e.target.select()}`?
+- [x] Digitar um novo valor em campos com zero inicial substitui o valor instantaneamente sem ter que apagar o zero?
+- [x] A seção de "Débitos & Documentação Pendente" exibe fundo claro leve (`bg-slate-50`), contorno fino de 1px (`border-slate-200`) e sem blocos escuros pesados?
+- [x] Os rótulos/labels da seção de débitos estão em preto puro (`text-slate-900 font-bold`) e as caixas de texto com fundo branco (`bg-white`) com alto contraste?
+- [x] Os botões de confirmação de venda utilizam a cor Verde Esmeralda (`bg-emerald-500`) em todas as telas?
 
 
 
