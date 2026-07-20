@@ -607,89 +607,89 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
               </div>
             )}
             {/* Outras Despesas / Débitos na Aquisição */}
-            <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl space-y-4 text-xs">
-              <p className="text-[8.5px] font-black text-emerald-450 text-emerald-400 uppercase tracking-wider">
+            <div className="p-4 md:p-5 bg-slate-900/90 border border-slate-750 rounded-2xl space-y-4 text-xs shadow-xl">
+              <p className="text-xs font-headline font-black text-emerald-400 uppercase tracking-wider border-b border-slate-800/80 pb-2.5">
                 📄 Débitos & Documentação Pendente
               </p>
 
               {/* Payoff / Financing payoff */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Quitação de Financiamento (R$)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Quitação de Financiamento (R$)</label>
                 <input
                   type="number"
                   name="payoffExpense"
                   value={formData.payoffExpense}
                   onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
-                  className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
+                  className="w-full h-10 px-3 bg-slate-950 border border-slate-700 focus:border-emerald-400 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-400 shadow-inner"
                   placeholder="Ex: 15000"
                 />
               </div>
 
               {/* Fines */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Multas Pendentes (R$)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Multas Pendentes (R$)</label>
                 <input
                   type="number"
                   name="finesExpense"
                   value={formData.finesExpense}
                   onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
-                  className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
+                  className="w-full h-10 px-3 bg-slate-950 border border-slate-700 focus:border-emerald-400 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-400 shadow-inner"
                   placeholder="Ex: 850"
                 />
               </div>
 
               {/* Documentation */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Documentação e Transferência (R$)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Documentação e Transferência (R$)</label>
                 <input
                   type="number"
                   name="docExpense"
                   value={formData.docExpense}
                   onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
-                  className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
+                  className="w-full h-10 px-3 bg-slate-950 border border-slate-700 focus:border-emerald-400 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-400 shadow-inner"
                   placeholder="Ex: 1200"
                 />
               </div>
 
               {/* Other Expenses */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Outras Despesas de Doc (R$)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Outras Despesas de Doc (R$)</label>
                 <input
                   type="number"
                   name="otherExpenses"
                   value={formData.otherExpenses}
                   onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
-                  className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
+                  className="w-full h-10 px-3 bg-slate-950 border border-slate-700 focus:border-emerald-400 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-400 shadow-inner"
                   placeholder="Ex: 500"
                 />
               </div>
 
               {/* Transfer & Insurance */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Débitos de Transferência e Seguro (R$)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Débitos de Transferência e Seguro (R$)</label>
                 <input
                   type="number"
                   name="transferInsuranceExpense"
                   value={formData.transferInsuranceExpense}
                   onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
-                  className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
+                  className="w-full h-10 px-3 bg-slate-950 border border-slate-700 focus:border-emerald-400 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-400 shadow-inner"
                   placeholder="Ex: 600"
                 />
               </div>
 
               {/* Custom Expenses List */}
-              <div className="space-y-2.5 pt-3 border-t border-slate-900">
+              <div className="space-y-2.5 pt-3 border-t border-slate-800">
                 <div className="flex justify-between items-center">
-                  <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Outros Débitos Personalizados</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-200">Outros Débitos Personalizados</label>
                   <button
                     type="button"
                     onClick={handleAddCustomExpense}
-                    className="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/20 hover:border-sky-500/40 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1 transition-all"
+                    className="px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1 transition-all shadow-sm"
                   >
                     + Novo Débito
                   </button>
@@ -702,7 +702,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                       value={item.description}
                       onChange={(e) => handleCustomExpenseChange(item.id, 'description', e.target.value)}
                       placeholder="Descrição (ex: IPVA Atrasado)"
-                      className="flex-1 h-9 px-2 bg-slate-950 border border-slate-900 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
+                      className="flex-1 h-9 px-3 bg-slate-950 border border-slate-700 focus:border-emerald-400 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-400 shadow-inner"
                     />
                     <input
                       type="number"
@@ -710,7 +710,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleCustomExpenseChange(item.id, 'price', e.target.value)}
                       placeholder="Valor (R$)"
-                      className="w-24 h-9 px-2 bg-slate-950 border border-slate-900 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
+                      className="w-28 h-9 px-3 bg-slate-950 border border-slate-700 focus:border-emerald-400 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-400 shadow-inner"
                     />
                     <button
                       type="button"
