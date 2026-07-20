@@ -84,4 +84,14 @@ Roteiro de testes de regressão antes de entregas ou encerramentos de milestones
 - [x] Os botões de ação (`Vender`, `Baixar`, `Excluir`) sobem para a primeira linha do conteúdo de detalhes no mobile, aproveitando a área útil da tela?
 - [x] Todas as fotos de teste da pasta local `public/images/` para os 6 veículos estão formatadas no aspecto landscape 16:9 (`1280x720`) sem cortes indesejados de `object-cover`?
 
+## Testes de Controle de Assinatura, Expiração e Design iOS 18 (V2.3)
+- [x] Todo novo lojista recebe automaticamente o prazo de teste de 2 dias (`test_2d`) no cadastro?
+- [x] Contas expiradas ou suspensas exibem a modal de bloqueio `SubscriptionLockModal.jsx` impedindo a navegação e acesso ao estoque?
+- [x] O botão de renovação no WhatsApp redireciona para `+55 (62) 99404-9949` com mensagem pré-preenchida contendo os dados do lojista e da revenda?
+- [x] A modal de bloqueio utiliza a estética **iOS 18 Glassmorphism Dark** (`bg-zinc-950/80 backdrop-blur-3xl`, brilhos neon e textos em branco puro `#FFFFFF`)?
+- [x] A classe `.lock-mode` é aplicada ao `body` durante a modal, isolando e prevenindo qualquer sobreposição de cores de tema claro?
+- [x] Em telas pequenas e dispositivos móveis, a modal de bloqueio possui suporte completo à rolagem vertical suave (`max-h-[90vh] overflow-y-auto scrollbar-thin`) sem cortar nenhum elemento visual ou botão de ação?
+- [x] O atalho `🔴 Ver Expirado` na modal de login permite testar instantaneamente o comportamento da tela de bloqueio localmente?
+
+
 

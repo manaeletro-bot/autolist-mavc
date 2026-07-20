@@ -4,7 +4,24 @@ Este arquivo registra a linha do tempo e a evolução das versões do sistema AU
 
 ## Linha do Tempo de Versões
 
-### Versão 2.1 - Otimizações de UX Mobile, Integridade de Mídia e Cabeçalho Dinâmico (Atual)
+### Versão 2.3 - Controle de Assinaturas, Bloqueio de Teste (2 Dias) & iOS 18 Glassmorphism (Atual)
+*   **Foco:** Implementação de limite rígido de 2 dias de teste para lojistas, bloqueio de tela por expiração e suporte direto via WhatsApp.
+*   **Melhorias:**
+    *   Definição do prazo padrão de teste gratuito em **2 dias** (`test_2d`) no cadastro e no Portal do Gestor.
+    *   Criação da tela de bloqueio `SubscriptionLockModal.jsx` ativada automaticamente quando o prazo expira ou a conta é suspensa.
+    *   Inserção de botão direto para suporte e renovação via WhatsApp com o número **+55 62 99404-9949**.
+    *   Aprimoramento do design da modal no padrão **iOS 18 Glassmorphism Dark** com brilhos neon, textos brancos de alto contraste e rolagem vertical suave (`max-h-[90vh] overflow-y-auto`).
+    *   Resolução da sobreposição de estilos CSS adicionando a classe `.lock-mode` ao `body` durante a exibição da modal.
+    *   Criação de usuário e atalho de teste rápido (`expirado@autolist.com` / `🔴 Ver Expirado`) no login.
+
+### Versão 2.2 - Adaptação Bidirecional Supabase Cloud & Isolamento de Sessão Teste
+*   **Foco:** Garantir sincronização bidirecional de schema com Supabase Cloud e isolamento de sessões de teste.
+*   **Melhorias:**
+    *   Implementação do layer de tradução `mapFromSupabase` e `mapToSupabase` em `supabaseAdapter.js` eliminando inconsistências entre camelCase e snake_case.
+    *   Implementação do método `resetDemoSession()` para restaurar veículos de teste ao logar/deslogar com `lojista@autolist.com`.
+    *   Inicialização em "tela limpa" (zero veículos) para novos lojistas cadastrados.
+
+### Versão 2.1 - Otimizações de UX Mobile, Integridade de Mídia e Cabeçalho Dinâmico
 *   **Foco:** Aperfeiçoamento da experiência mobile, integração do cabeçalho de veículos e conversão de mídias para proporção 16:9.
 *   **Melhorias:**
     *   Simplificação do `VehicleCard` no Dashboard: remoção do botão isolado "Ver" (card 100% clicável), adição de badge de Cor e exibição limpa focada no Preço de Revenda.

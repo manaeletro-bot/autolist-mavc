@@ -57,4 +57,11 @@ Este arquivo descreve as regras e diretrizes que devem ser obedecidas por qualqu
 ### Regra 17: Integração de Navegação Interna no Cabeçalho Mobile
 *   Em dispositivos móveis, quando o usuário abre os detalhes de um veículo, a barra de título superior fixa (`Layout.jsx`) deve assumir a identidade do veículo (Marca, Placa, Modelo e Botão Voltar). Isso elimina duplicidades visuais e permite elevar os botões primários de ação (`Vender`, `Baixar`, `Excluir`) para o topo da área útil de conteúdo.
 
+### Regra 18: Limite de Teste (2 Dias) e Direcionamento ao Suporte
+*   Todo novo lojista cadastrado possui um prazo rígido de 2 dias de teste gratuito (`test_2d`). Quando o prazo expira ou a conta é suspensa pelo Gestor, o sistema deve bloquear o acesso no nível do middleware de interface (`Layout.jsx` / `authService.js`), exibindo a modal de bloqueio `SubscriptionLockModal.jsx` com o número direto de suporte e renovação via WhatsApp (**+55 62 99404-9949**).
+
+### Regra 19: Padrão iOS 18 Glassmorphism e Isolamento de Sobrescritas CSS
+*   Modais de bloqueio e avisos críticos de sistema devem utilizar a linguagem **iOS 18 Glassmorphism Dark** (preto profundo translúcido `bg-zinc-950/80 backdrop-blur-3xl`, brilhos neon sutis e tipografia em branco puro `#FFFFFF`). Qualquer modal que possa ultrapassar a altura da viewport deve conter limite `max-h-[90vh]` e rolagem vertical nativa (`overflow-y-auto scrollbar-thin`). Além disso, para evitar que regras de tema claro substituam cores escuras em modais, a classe de contexto (ex: `lock-mode`) deve ser aplicada ao `body` e isolada no `index.css`.
+
+
 

@@ -15,7 +15,8 @@ O sistema é uma aplicação SPA (Single Page Application) construída sobre a s
 
 ## Estrutura de Componentes Principais
 
-*   `Layout.jsx`: Container principal que gerencia o menu lateral desktop e o drawer sanduíche mobile (à direita). Também exibe e gerencia a alternância entre Banco Local e Banco Produção.
+*   `Layout.jsx`: Container principal que gerencia o menu lateral desktop, o drawer sanduíche mobile e o gatekeeper de bloqueio de conta (`SubscriptionLockModal`). Também exibe a alternância de Banco Local vs Banco Produção.
+*   `SubscriptionLockModal.jsx`: Modal de bloqueio de tela com design iOS 18 Glassmorphism Dark, acionada automaticamente quando o plano do lojista expira (prazo de 2 dias de teste) ou a conta é suspensa, oferecendo link direto para o suporte WhatsApp (+55 62 99404-9949).
 *   `Dashboard.jsx`: Painel principal com barra de busca superturbinada e grid responsivo de veículos.
 *   `VehicleForm.jsx`: Formulário para criar ou editar as informações do veículo, incluindo fotos em base64 e campos de Combustível (Flex, Gasolina, Diesel, 100% Elétrico, Híbrido, Outros).
 *   `VehicleDetails.jsx`: Exibe a ficha técnica e os acordeões expansíveis de Resumo, Checklist, Reparos, Diário e Galeria de Fotos. Também controla a exclusão interna e a geração do relatório customizado (PDF e TXT).
@@ -40,4 +41,6 @@ A busca inteligente varre recursivamente no frontend os campos de:
 *   **[Vora DOC 006](file:///c:/Users/marci/Auto%20list/VORA%20CLOUD%20-%20OS/documentacao/Vora%20DOC/006.md):** Integração Checklist-Reparos automática, compressão de imagens via Canvas (lado cliente), Keep-Alive da Vercel (Cron Job de 3 dias para acordar Supabase) e rastreamento de débitos burocráticos/despesas adicionais de documentação e multas.
 *   **[Vora DOC 007](file:///c:/Users/marci/Auto%20list/VORA%20CLOUD%20-%20OS/documentacao/Vora%20DOC/007.md):** Lançamento da infraestrutura cloud 100% isolada e renomeação definitiva para **AUTOLIST - MAVC**. Criação de repositório GitHub independente (`manaeletro-bot/autolist-mavc`), nova instância Supabase Cloud com cliente oficial `@supabase/supabase-js`, deploy na Vercel ([autolist-mavc.vercel.app](https://autolist-mavc.vercel.app)) e relatório confidencial `CREDENCIAIS_ACESSO.md`.
 *   **[Vora DOC 008](file:///c:/Users/marci/Auto%20list/VORA%20CLOUD%20-%20OS/documentacao/Vora%20DOC/008.md):** Otimizações de UX mobile: card simplificado no Dashboard, correção de truncamento em subtítulos sanfona (`break-words leading-tight`), cabeçalho dinâmico integrado no `Layout.jsx` (Marca, Placa, Modelo e Voltar no topo), elevação de botões de ação e conversão de mídias para 16:9 landscape (`1280x720`) com desfoque de fundo.
+*   **[Vora DOC 009](file:///c:/Users/marci/Auto%20list/VORA%20CLOUD%20-%20OS/documentacao/Vora%20DOC/009.md):** Controle rígido de teste de 2 dias (`test_2d`), gatekeeper `SubscriptionLockModal.jsx` com padrão iOS 18 Glassmorphism Dark, suporte direto via WhatsApp (+55 62 99404-9949), rolagem nativa vertical e solução de conflitos de CSS com `.lock-mode`.
+
 
