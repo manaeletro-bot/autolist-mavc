@@ -403,7 +403,23 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
       txtContent += `Placa: ${(vehicle.plate || '---').toUpperCase()}\n`;
       txtContent += `Cor: ${(vehicle.color || '---').toUpperCase()}\n`;
       txtContent += `Quilometragem: ${vehicle.km ? parseInt(vehicle.km).toLocaleString('pt-BR') + ' KM' : '---'}\n`;
-      txtContent += `Combustível: ${vehicle.fuelLevel || '---'}\n`;
+      
+      const getFuelLabel = (ft) => {
+        const map = {
+          flex: 'Flex',
+          gasolina: 'Gasolina',
+          diesel: 'Diesel',
+          eletrico: '100% Elétrico',
+          hibrido: 'Híbrido',
+          outros: 'Outros'
+        };
+        return map[(ft || '').toLowerCase()] || (ft ? String(ft).toUpperCase() : 'Flex');
+      };
+
+      txtContent += `Tipo de Combustível: ${getFuelLabel(vehicle.fuelType)}\n`;
+      txtContent += `Nível do Tanque: ${vehicle.fuelLevel || '---'}\n`;
+      txtContent += `Portas / Capacidade: ${vehicle.doors || '4'} Portas / ${vehicle.occupants || '5'} Ocupantes\n`;
+      if (vehicle.chassis) txtContent += `Chassi: ${vehicle.chassis.toUpperCase()}\n`;
       txtContent += `Opcionais: ${(vehicle.options || []).join(', ') || 'Nenhum'}\n\n`;
 
       if (scope === 'customer') {
@@ -515,32 +531,61 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
       doc.setLineWidth(0.3);
       doc.line(margin, y + 2, pageW - margin, y + 2);
       
-      y += 8;
+      y += 9;
       doc.setFontSize(9);
       doc.setTextColor(71, 85, 105);
 
+      const getFuelLabel = (ft) => {
+        const map = {
+          flex: 'Flex',
+          gasolina: 'Gasolina',
+          diesel: 'Diesel',
+          eletrico: '100% Elétrico',
+          hibrido: 'Híbrido',
+          outros: 'Outros'
+        };
+        return map[(ft || '').toLowerCase()] || (ft ? String(ft).toUpperCase() : 'Flex');
+      };
+
       const col1X = margin;
-      const col2X = margin + 60;
-      const col3X = margin + 120;
+      const col2X = margin + 55;
+      const col3X = margin + 115;
 
+      // Linha 1: Marca & Modelo (Espaço amplo dedicado)
       doc.setFont('helvetica', 'bold'); doc.text('VEÍCULO:', col1X, y);
-      doc.setFont('helvetica', 'normal'); doc.text(`${(vehicle.brand || '').toUpperCase()} ${(vehicle.model || '').toUpperCase()}`, col1X + 22, y);
+      doc.setFont('helvetica', 'normal'); doc.text(`${(vehicle.brand || '').toUpperCase()} ${(vehicle.model || '').toUpperCase()}`, col1X + 20, y);
 
-      doc.setFont('helvetica', 'bold'); doc.text('PLACA:', col2X, y);
-      doc.setFont('helvetica', 'normal'); doc.text((vehicle.plate || '---').toUpperCase(), col2X + 18, y);
+      // Linha 2: Placa, Ano, Cor
+      y += 6.5;
+      doc.setFont('helvetica', 'bold'); doc.text('PLACA:', col1X, y);
+      doc.setFont('helvetica', 'normal'); doc.text((vehicle.plate || '---').toUpperCase(), col1X + 16, y);
 
-      doc.setFont('helvetica', 'bold'); doc.text('ANO:', col3X, y);
-      doc.setFont('helvetica', 'normal'); doc.text(String(vehicle.year || '---'), col3X + 12, y);
+      doc.setFont('helvetica', 'bold'); doc.text('ANO:', col2X, y);
+      doc.setFont('helvetica', 'normal'); doc.text(String(vehicle.year || '---'), col2X + 12, y);
 
-      y += 6;
-      doc.setFont('helvetica', 'bold'); doc.text('COR:', col1X, y);
-      doc.setFont('helvetica', 'normal'); doc.text((vehicle.color || '---').toUpperCase(), col1X + 22, y);
+      doc.setFont('helvetica', 'bold'); doc.text('COR:', col3X, y);
+      doc.setFont('helvetica', 'normal'); doc.text((vehicle.color || '---').toUpperCase(), col3X + 12, y);
 
-      doc.setFont('helvetica', 'bold'); doc.text('KM:', col2X, y);
-      doc.setFont('helvetica', 'normal'); doc.text(vehicle.km ? `${parseInt(vehicle.km).toLocaleString('pt-BR')} KM` : '---', col2X + 18, y);
+      // Linha 3: KM, Combustível, Nível do Tanque
+      y += 6.5;
+      doc.setFont('helvetica', 'bold'); doc.text('KM:', col1X, y);
+      doc.setFont('helvetica', 'normal'); doc.text(vehicle.km ? `${parseInt(vehicle.km).toLocaleString('pt-BR')} KM` : '---', col1X + 12, y);
 
-      doc.setFont('helvetica', 'bold'); doc.text('COMBUST.:', col3X, y);
-      doc.setFont('helvetica', 'normal'); doc.text(vehicle.fuelLevel || '---', col3X + 24, y);
+      doc.setFont('helvetica', 'bold'); doc.text('COMBUSTÍVEL:', col2X, y);
+      doc.setFont('helvetica', 'normal'); doc.text(getFuelLabel(vehicle.fuelType).toUpperCase(), col2X + 28, y);
+
+      doc.setFont('helvetica', 'bold'); doc.text('NÍVEL TANQUE:', col3X, y);
+      doc.setFont('helvetica', 'normal'); doc.text(vehicle.fuelLevel || '---', col3X + 28, y);
+
+      // Linha 4: Portas/Capacidade e Chassi
+      y += 6.5;
+      doc.setFont('helvetica', 'bold'); doc.text('PORTAS / CAPACIDADE:', col1X, y);
+      doc.setFont('helvetica', 'normal'); doc.text(`${vehicle.doors || '4'} Portas / ${vehicle.occupants || '5'} Ocupantes`, col1X + 42, y);
+
+      if (vehicle.chassis) {
+        doc.setFont('helvetica', 'bold'); doc.text('CHASSI:', col3X, y);
+        doc.setFont('helvetica', 'normal'); doc.text(vehicle.chassis.toUpperCase(), col3X + 16, y);
+      }
 
       if (scope === 'customer') {
         y += 12;
