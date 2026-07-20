@@ -75,10 +75,9 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
 
   const handlePriceChange = (e) => {
     const { name, value } = e.target;
-    const numeric = parseFloat(value) || 0;
     setFormData(prev => ({
       ...prev,
-      [name]: numeric
+      [name]: value
     }));
   };
 
@@ -323,6 +322,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                 type="number"
                 name="km"
                 value={formData.km}
+                onFocus={(e) => e.target.select()}
                 onChange={handleChange}
                 className="w-full h-10 px-3 bg-slate-950 border border-slate-855 border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                 placeholder="Ex: 78000"
@@ -470,6 +470,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                 type="number"
                 name="acquisitionPrice"
                 value={formData.acquisitionPrice}
+                onFocus={(e) => e.target.select()}
                 onChange={handlePriceChange}
                 className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-black text-emerald-450 text-emerald-400 placeholder-slate-650"
                 placeholder="Ex: 45000"
@@ -530,6 +531,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                     type="number"
                     name="purchaseTradeInVal"
                     value={formData.purchaseTradeInVal}
+                    onFocus={(e) => e.target.select()}
                     onChange={handlePriceChange}
                     className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     placeholder="0"
@@ -543,6 +545,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                     type="number"
                     name="purchaseCashVal"
                     value={formData.purchaseCashVal}
+                    onFocus={(e) => e.target.select()}
                     onChange={handlePriceChange}
                     className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     placeholder="0"
@@ -556,6 +559,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                     type="number"
                     name="purchaseInstallmentsTotal"
                     value={formData.purchaseInstallmentsTotal}
+                    onFocus={(e) => e.target.select()}
                     onChange={handleChange}
                     className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     placeholder="0"
@@ -569,6 +573,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                     type="number"
                     name="purchaseInstallmentPrice"
                     value={formData.purchaseInstallmentPrice}
+                    onFocus={(e) => e.target.select()}
                     onChange={handlePriceChange}
                     className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     placeholder="0"
@@ -582,6 +587,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                     type="number"
                     name="purchaseInstallmentsPaid"
                     value={formData.purchaseInstallmentsPaid}
+                    onFocus={(e) => e.target.select()}
                     onChange={handleChange}
                     className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     placeholder="0"
@@ -613,6 +619,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                   type="number"
                   name="payoffExpense"
                   value={formData.payoffExpense}
+                  onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
                   className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                   placeholder="Ex: 15000"
@@ -626,6 +633,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                   type="number"
                   name="finesExpense"
                   value={formData.finesExpense}
+                  onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
                   className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                   placeholder="Ex: 850"
@@ -639,6 +647,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                   type="number"
                   name="docExpense"
                   value={formData.docExpense}
+                  onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
                   className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                   placeholder="Ex: 1200"
@@ -652,6 +661,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                   type="number"
                   name="otherExpenses"
                   value={formData.otherExpenses}
+                  onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
                   className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                   placeholder="Ex: 500"
@@ -665,6 +675,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                   type="number"
                   name="transferInsuranceExpense"
                   value={formData.transferInsuranceExpense}
+                  onFocus={(e) => e.target.select()}
                   onChange={handlePriceChange}
                   className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                   placeholder="Ex: 600"
@@ -696,6 +707,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                     <input
                       type="number"
                       value={item.price}
+                      onFocus={(e) => e.target.select()}
                       onChange={(e) => handleCustomExpenseChange(item.id, 'price', e.target.value)}
                       placeholder="Valor (R$)"
                       className="w-24 h-9 px-2 bg-slate-950 border border-slate-900 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
@@ -718,6 +730,7 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                 type="number"
                 name="resalePrice"
                 value={formData.resalePrice}
+                onFocus={(e) => e.target.select()}
                 onChange={handlePriceChange}
                 className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-black text-sky-400 placeholder-slate-650"
                 placeholder="Ex: 55000"

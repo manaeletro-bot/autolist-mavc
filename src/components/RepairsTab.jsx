@@ -120,6 +120,7 @@ export default function RepairsTab({ repairs, acquisitionPrice, resalePrice, onC
                   <input
                     type="number"
                     value={price}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => setPrice(e.target.value)}
                     className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-black text-emerald-400 placeholder-slate-650"
                     placeholder="0.00"
@@ -214,7 +215,8 @@ export default function RepairsTab({ repairs, acquisitionPrice, resalePrice, onC
                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-500">R$</span>
                         <input
                           type="number"
-                          value={repair.price}
+                          value={repair.price === 0 ? '' : repair.price}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => handleUpdatePrice(repair.id, e.target.value)}
                           disabled={readOnly}
                           className="w-24 h-8 pl-6 pr-2 bg-slate-950 border border-slate-850 focus:border-slate-750 focus:outline-none rounded-lg text-xs font-bold text-white text-right disabled:opacity-70"

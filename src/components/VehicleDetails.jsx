@@ -30,14 +30,14 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
   const [isEditingSale, setIsEditingSale] = useState(false);
   const [saleData, setSaleData] = useState({
     buyerName: vehicle.buyerName || '',
-    saleDiscount: vehicle.saleDiscount || 0,
+    saleDiscount: vehicle.saleDiscount || '',
     saleMode: vehicle.saleMode || 'full', // 'full' | 'installments'
     saleTradeInDesc: vehicle.saleTradeInDesc || '',
-    saleTradeInVal: vehicle.saleTradeInVal || 0,
-    saleCashVal: vehicle.saleCashVal || 0,
-    saleInstallmentsTotal: vehicle.saleInstallmentsTotal || 0,
-    saleInstallmentsPaid: vehicle.saleInstallmentsPaid || 0,
-    saleInstallmentPrice: vehicle.saleInstallmentPrice || 0
+    saleTradeInVal: vehicle.saleTradeInVal || '',
+    saleCashVal: vehicle.saleCashVal || '',
+    saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
+    saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
+    saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
   });
 
   // Specs Editor State
@@ -89,11 +89,11 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
     maxDiscountPercent: vehicle.maxDiscountPercent || 5,
     purchaseMode: vehicle.purchaseMode || 'full',
     purchaseTradeInDesc: vehicle.purchaseTradeInDesc || '',
-    purchaseTradeInVal: vehicle.purchaseTradeInVal || 0,
-    purchaseCashVal: vehicle.purchaseCashVal || 0,
-    purchaseInstallmentsTotal: vehicle.purchaseInstallmentsTotal || 0,
-    purchaseInstallmentsPaid: vehicle.purchaseInstallmentsPaid || 0,
-    purchaseInstallmentPrice: vehicle.purchaseInstallmentPrice || 0,
+    purchaseTradeInVal: vehicle.purchaseTradeInVal || '',
+    purchaseCashVal: vehicle.purchaseCashVal || '',
+    purchaseInstallmentsTotal: vehicle.purchaseInstallmentsTotal || '',
+    purchaseInstallmentsPaid: vehicle.purchaseInstallmentsPaid || '',
+    purchaseInstallmentPrice: vehicle.purchaseInstallmentPrice || '',
     docExpense: vehicle.docExpense || '',
     finesExpense: vehicle.finesExpense || '',
     payoffExpense: vehicle.payoffExpense || '',
@@ -757,14 +757,15 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 handleCancelSale();
               } else {
                 setSaleData({
-                  saleDiscount: 0,
-                  saleMode: 'full',
-                  saleTradeInDesc: '',
-                  saleTradeInVal: 0,
-                  saleCashVal: 0,
-                  saleInstallmentsTotal: 0,
-                  saleInstallmentsPaid: 0,
-                  saleInstallmentPrice: 0
+                  buyerName: vehicle.buyerName || '',
+                  saleDiscount: vehicle.saleDiscount || '',
+                  saleMode: vehicle.saleMode || 'full',
+                  saleTradeInDesc: vehicle.saleTradeInDesc || '',
+                  saleTradeInVal: vehicle.saleTradeInVal || '',
+                  saleCashVal: vehicle.saleCashVal || '',
+                  saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
+                  saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
+                  saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
                 });
                 setIsEditingSale(true);
                 setActiveTab('financial');
@@ -1188,7 +1189,8 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                     <input
                       type="number"
                       value={saleData.saleDiscount}
-                      onChange={(e) => setSaleData(prev => ({ ...prev, saleDiscount: parseFloat(e.target.value) || 0 }))}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => setSaleData(prev => ({ ...prev, saleDiscount: e.target.value }))}
                       className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                       placeholder="0"
                     />
@@ -1198,7 +1200,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                   <div className="space-y-1.5">
                     <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Preço Final Negociado (R$)</label>
                     <div className="w-full h-10 px-3 bg-slate-950 border border-slate-855 rounded-xl text-xs font-black text-sky-400 flex items-center">
-                      {formatCurrency((vehicle.resalePrice || 0) - (saleData.saleDiscount || 0))}
+                      {formatCurrency((vehicle.resalePrice || 0) - (parseFloat(saleData.saleDiscount) || 0))}
                     </div>
                   </div>
 
@@ -1240,7 +1242,8 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={saleData.saleTradeInVal}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleTradeInVal: parseFloat(e.target.value) || 0 }))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setSaleData(prev => ({ ...prev, saleTradeInVal: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                           placeholder="0"
                         />
@@ -1252,7 +1255,8 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={saleData.saleCashVal}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleCashVal: parseFloat(e.target.value) || 0 }))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setSaleData(prev => ({ ...prev, saleCashVal: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                           placeholder="0"
                         />
@@ -1264,7 +1268,8 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={saleData.saleInstallmentsTotal}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentsTotal: parseInt(e.target.value) || 0 }))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentsTotal: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                           placeholder="0"
                         />
@@ -1276,7 +1281,8 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={saleData.saleInstallmentPrice}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentPrice: parseFloat(e.target.value) || 0 }))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentPrice: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                           placeholder="0"
                         />
@@ -1288,7 +1294,8 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={saleData.saleInstallmentsPaid}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentsPaid: parseInt(e.target.value) || 0 }))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentsPaid: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                           placeholder="0"
                         />
@@ -1342,6 +1349,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                     <input
                       type="number"
                       value={financialData.acquisitionPrice}
+                      onFocus={(e) => e.target.select()}
                       onChange={(e) => setFinancialData(prev => ({ ...prev, acquisitionPrice: e.target.value }))}
                       className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     />
@@ -1353,6 +1361,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                     <input
                       type="number"
                       value={financialData.resalePrice}
+                      onFocus={(e) => e.target.select()}
                       onChange={(e) => setFinancialData(prev => ({ ...prev, resalePrice: e.target.value }))}
                       className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     />
@@ -1364,6 +1373,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                     <input
                       type="number"
                       value={financialData.maxDiscountPercent}
+                      onFocus={(e) => e.target.select()}
                       onChange={(e) => setFinancialData(prev => ({ ...prev, maxDiscountPercent: e.target.value }))}
                       className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                     />
@@ -1404,6 +1414,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={financialData.purchaseTradeInVal}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseTradeInVal: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                         />
@@ -1414,6 +1425,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={financialData.purchaseCashVal}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseCashVal: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                         />
@@ -1424,6 +1436,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={financialData.purchaseInstallmentsTotal}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseInstallmentsTotal: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                         />
@@ -1434,6 +1447,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={financialData.purchaseInstallmentPrice}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseInstallmentPrice: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                         />
@@ -1444,6 +1458,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <input
                           type="number"
                           value={financialData.purchaseInstallmentsPaid}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseInstallmentsPaid: e.target.value }))}
                           className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
                         />
@@ -1462,6 +1477,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                       <input
                         type="number"
                         value={financialData.payoffExpense}
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) => setFinancialData(prev => ({ ...prev, payoffExpense: e.target.value }))}
                         className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                         placeholder="0"
@@ -1473,6 +1489,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                       <input
                         type="number"
                         value={financialData.finesExpense}
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) => setFinancialData(prev => ({ ...prev, finesExpense: e.target.value }))}
                         className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                         placeholder="0"
@@ -1484,6 +1501,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                       <input
                         type="number"
                         value={financialData.docExpense}
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) => setFinancialData(prev => ({ ...prev, docExpense: e.target.value }))}
                         className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                         placeholder="0"
@@ -1495,6 +1513,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                       <input
                         type="number"
                         value={financialData.otherExpenses}
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) => setFinancialData(prev => ({ ...prev, otherExpenses: e.target.value }))}
                         className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                         placeholder="0"
@@ -1506,6 +1525,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                       <input
                         type="number"
                         value={financialData.transferInsuranceExpense}
+                        onFocus={(e) => e.target.select()}
                         onChange={(e) => setFinancialData(prev => ({ ...prev, transferInsuranceExpense: e.target.value }))}
                         className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
                         placeholder="0"
@@ -1537,6 +1557,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                           <input
                             type="number"
                             value={item.price}
+                            onFocus={(e) => e.target.select()}
                             onChange={(e) => handleCustomExpenseChangeDetails(item.id, 'price', e.target.value)}
                             placeholder="Valor (R$)"
                             className="w-24 h-9 px-2 bg-slate-950 border border-slate-900 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
@@ -1815,14 +1836,15 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                     <button
                       onClick={() => {
                         setSaleData({
-                          saleDiscount: vehicle.saleDiscount || 0,
+                          buyerName: vehicle.buyerName || '',
+                          saleDiscount: vehicle.saleDiscount || '',
                           saleMode: vehicle.saleMode || 'full',
                           saleTradeInDesc: vehicle.saleTradeInDesc || '',
-                          saleTradeInVal: vehicle.saleTradeInVal || 0,
-                          saleCashVal: vehicle.saleCashVal || 0,
-                          saleInstallmentsTotal: vehicle.saleInstallmentsTotal || 0,
-                          saleInstallmentsPaid: vehicle.saleInstallmentsPaid || 0,
-                          saleInstallmentPrice: vehicle.saleInstallmentPrice || 0
+                          saleTradeInVal: vehicle.saleTradeInVal || '',
+                          saleCashVal: vehicle.saleCashVal || '',
+                          saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
+                          saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
+                          saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
                         });
                         setIsEditingSale(true);
                       }}
@@ -1912,14 +1934,15 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                       <button
                         onClick={() => {
                           setSaleData({
-                            saleDiscount: 0,
-                            saleMode: 'full',
-                            saleTradeInDesc: '',
-                            saleTradeInVal: 0,
-                            saleCashVal: 0,
-                            saleInstallmentsTotal: 0,
-                            saleInstallmentsPaid: 0,
-                            saleInstallmentPrice: 0
+                            buyerName: vehicle.buyerName || '',
+                            saleDiscount: vehicle.saleDiscount || '',
+                            saleMode: vehicle.saleMode || 'full',
+                            saleTradeInDesc: vehicle.saleTradeInDesc || '',
+                            saleTradeInVal: vehicle.saleTradeInVal || '',
+                            saleCashVal: vehicle.saleCashVal || '',
+                            saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
+                            saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
+                            saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
                           });
                           setIsEditingSale(true);
                         }}
