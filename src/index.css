@@ -39,6 +39,13 @@ body.gestor-mode #root {
   overflow: visible !important;
 }
 
+/* Modo Lock Screen (Expiração de Assinatura): Tema Escuro iOS Glassmorphism */
+body.lock-mode {
+  background-color: #050508 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -51,13 +58,13 @@ body.gestor-mode #root {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 99px;
   transition: all 0.2s ease-in-out;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 122, 255, 0.4);
+  background: rgba(16, 185, 129, 0.5);
 }
 
 /* Glassmorphism Classes (Light Theme frosted glass) */
@@ -92,44 +99,44 @@ input[type="range"] {
   accent-color: #007aff;
 }
 
-/* OVERRIDES APENAS PARA O PAINEL DO USUÁRIO (NÃO APLICAR NO GESTOR) */
-body:not(.gestor-mode) .bg-slate-950 {
+/* OVERRIDES APENAS PARA O PAINEL DO USUÁRIO (NÃO APLICAR NO GESTOR NEM NO LOCK SCREEN) */
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-950 {
   background-color: transparent !important;
 }
 
-body:not(.gestor-mode) .text-slate-100 {
+body:not(.gestor-mode):not(.lock-mode) .text-slate-100 {
   color: #1c1c1e !important;
 }
 
-body:not(.gestor-mode) .text-slate-200, 
-body:not(.gestor-mode) .text-slate-300, 
-body:not(.gestor-mode) .text-slate-400 {
+body:not(.gestor-mode):not(.lock-mode) .text-slate-200, 
+body:not(.gestor-mode):not(.lock-mode) .text-slate-300, 
+body:not(.gestor-mode):not(.lock-mode) .text-slate-400 {
   color: #3a3a3c !important;
 }
 
-body:not(.gestor-mode) .text-slate-500, 
-body:not(.gestor-mode) .text-slate-550, 
-body:not(.gestor-mode) .text-slate-600 {
+body:not(.gestor-mode):not(.lock-mode) .text-slate-500, 
+body:not(.gestor-mode):not(.lock-mode) .text-slate-550, 
+body:not(.gestor-mode):not(.lock-mode) .text-slate-600 {
   color: #8e8e93 !important;
 }
 
-body:not(.gestor-mode) .text-white {
+body:not(.gestor-mode):not(.lock-mode) .text-white {
   color: #1c1c1e !important;
 }
 
-body:not(.gestor-mode) .border-slate-800, 
-body:not(.gestor-mode) .border-slate-850, 
-body:not(.gestor-mode) .border-slate-900 {
+body:not(.gestor-mode):not(.lock-mode) .border-slate-800, 
+body:not(.gestor-mode):not(.lock-mode) .border-slate-850, 
+body:not(.gestor-mode):not(.lock-mode) .border-slate-900 {
   border-color: rgba(0, 0, 0, 0.06) !important;
 }
 
-body:not(.gestor-mode) .bg-slate-900, 
-body:not(.gestor-mode) .bg-slate-900\/95, 
-body:not(.gestor-mode) .bg-slate-900\/60, 
-body:not(.gestor-mode) .bg-slate-900\/40, 
-body:not(.gestor-mode) .bg-slate-950\/40, 
-body:not(.gestor-mode) .bg-slate-950\/60, 
-body:not(.gestor-mode) .bg-slate-950\/80 {
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-900, 
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-900\/95, 
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-900\/60, 
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-900\/40, 
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-950\/40, 
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-950\/60, 
+body:not(.gestor-mode):not(.lock-mode) .bg-slate-950\/80 {
   background-color: rgba(255, 255, 255, 0.72) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;

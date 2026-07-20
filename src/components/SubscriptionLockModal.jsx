@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ShieldAlert, Clock, Phone, MessageCircle, LogOut, Lock } from 'lucide-react';
 
 export function SubscriptionLockModal({ user, onLogout }) {
+  useEffect(() => {
+    document.body.classList.add('lock-mode');
+    return () => {
+      document.body.classList.remove('lock-mode');
+    };
+  }, []);
+
   if (!user) return null;
 
   const phoneFormatted = "+55 (62) 99404-9949";
