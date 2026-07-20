@@ -1,6 +1,5 @@
 import React from 'react';
-import { ShieldAlert, Clock, Phone, MessageCircle, LogOut, Lock, Store, User, CheckCircle2 } from 'lucide-react';
-import { authService } from '../services/authService';
+import { ShieldAlert, Clock, Phone, MessageCircle, LogOut, Lock } from 'lucide-react';
 
 export function SubscriptionLockModal({ user, onLogout }) {
   if (!user) return null;
@@ -14,89 +13,95 @@ export function SubscriptionLockModal({ user, onLogout }) {
   const isSuspended = user.status === 'suspended';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-2xl animate-fade-in">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border-2 border-rose-500/80 bg-slate-900 p-8 shadow-2xl shadow-rose-950/80">
-        
-        {/* Glow de Fundo Ambient */}
-        <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-rose-500/20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-amber-500/20 blur-3xl pointer-events-none" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-2xl animate-fade-in overflow-hidden">
+      
+      {/* Luz Neon Orbe no Fundo (Estilo iOS Ambient Light) */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-emerald-500/20 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 translate-y-1/2 w-64 h-64 rounded-full bg-cyan-500/15 blur-[90px] pointer-events-none" />
 
+      {/* Card Principal - iOS Translucid Glass Container com Rolagem */}
+      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-white/15 bg-zinc-950/80 backdrop-blur-3xl p-6 sm:p-8 text-white shadow-[0_0_60px_rgba(0,0,0,0.9)] scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+        
         <div className="relative z-10 flex flex-col items-center text-center">
           
-          {/* Badge Ícone de Bloqueio em Amarelo Ouro */}
-          <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-400 text-slate-950 border-2 border-amber-300 shadow-xl shadow-amber-400/30">
+          {/* Badge Ícone iOS Glass com Neon Glow */}
+          <div className="relative mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-900/90 border border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.25)]">
             {isSuspended ? (
-              <Lock className="h-10 w-10 text-slate-950 stroke-[2.5]" />
+              <Lock className="h-10 w-10 text-rose-400 animate-pulse stroke-[2]" />
             ) : (
-              <Clock className="h-10 w-10 text-slate-950 stroke-[2.5]" />
+              <Clock className="h-10 w-10 text-emerald-400 stroke-[2]" />
             )}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-emerald-500/10 to-transparent pointer-events-none" />
           </div>
 
-          {/* Badge Superior com Texto Branco Super Visível */}
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-600 text-white px-4 py-1.5 text-xs font-headline font-black uppercase tracking-wider border-2 border-rose-400 shadow-lg mb-3">
-            {isSuspended ? '🔒 CONTA SUSPENSA' : '⏱️ PERÍODO DE TESTE EXPIRADO (2 DIAS)'}
-          </span>
+          {/* iOS Pill Badge */}
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-4 py-1 text-[11px] font-black uppercase tracking-wider text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+            {isSuspended ? 'Conta Suspensa' : 'Período de Teste Expirado (2 Dias)'}
+          </div>
 
-          {/* Título Principal em Branco Puro */}
-          <h2 className="text-2xl md:text-3xl font-headline font-black text-white tracking-tight uppercase drop-shadow-md">
-            {isSuspended ? 'ACESSO BLOQUEADO PELO GESTOR' : 'SEU TESTE DE 2 DIAS EXPIROU'}
+          {/* Título Principal Tipografia iOS */}
+          <h2 className="text-2xl sm:text-3xl font-headline font-black tracking-tight text-white uppercase">
+            {isSuspended ? 'Acesso Bloqueado' : 'Seu Teste de 2 Dias Expirou'}
           </h2>
 
-          {/* Texto Explicativo com Alto Contraste */}
-          <p className="mt-4 text-sm text-slate-100 leading-relaxed font-semibold">
+          {/* Descrição Limpa Sem Cores Gritantes */}
+          <p className="mt-3 text-sm text-zinc-300 font-normal leading-relaxed">
             {isSuspended ? (
-              'Esta conta de lojista foi suspensa temporariamente pelo Gestor Master. Para reativar seu acesso, entre em contato com nosso suporte.'
+              'Esta conta foi suspensa temporariamente pelo Gestor Master. Solicite a liberação com o suporte oficial.'
             ) : (
               <>
-                Seu período de teste de <span className="bg-amber-400 text-slate-950 px-2 py-0.5 rounded-md font-black mx-1">2 dias grátis</span> da plataforma <span className="bg-sky-500 text-white px-2 py-0.5 rounded-md font-black mx-1">AUTOLIST - MAVC</span> chegou ao fim. Solicite a renovação para liberar seu estoque.
+                O período de teste gratuito de <strong className="text-white font-semibold">2 dias</strong> da plataforma <strong className="text-emerald-400 font-semibold">AUTOLIST - MAVC</strong> finalizou. Renove sua assinatura para liberar o controle completo do seu estoque.
               </>
             )}
           </p>
 
-          {/* Card de Identificação da Conta com Legibilidade Máxima */}
-          <div className="mt-6 w-full rounded-2xl border-2 border-slate-700 bg-slate-950 p-4 text-left shadow-xl">
-            <div className="grid grid-cols-2 gap-3">
+          {/* Card de Dados do Lojista (iOS Glass Box) */}
+          <div className="mt-6 w-full rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-4 text-left space-y-3">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <span className="text-slate-300 text-xs font-bold uppercase tracking-wider block">Lojista:</span>
-                <span className="font-black text-white text-sm truncate block mt-0.5">{user.name}</span>
+                <span className="text-zinc-400 font-medium block">Lojista:</span>
+                <span className="font-semibold text-white truncate block mt-0.5">{user.name}</span>
               </div>
               <div>
-                <span className="text-slate-300 text-xs font-bold uppercase tracking-wider block">Loja / Revenda:</span>
-                <span className="font-black text-sky-300 text-sm truncate block mt-0.5">{user.storeName || 'Minha Revenda'}</span>
+                <span className="text-zinc-400 font-medium block">Loja / Revenda:</span>
+                <span className="font-semibold text-emerald-400 truncate block mt-0.5">{user.storeName || 'Minha Revenda'}</span>
               </div>
-              <div className="col-span-2 pt-3 border-t border-slate-800 flex items-center justify-between">
-                <span className="text-slate-200 text-xs font-bold uppercase tracking-wider">Status da Conta:</span>
-                <span className="font-headline font-black text-white text-xs bg-rose-600 px-3 py-1 rounded-lg border-2 border-rose-400 shadow-md uppercase tracking-wider">
-                  {isSuspended ? 'BLOQUEADO' : 'RENOVAÇÃO NECESSÁRIA'}
-                </span>
-              </div>
+            </div>
+            
+            <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
+              <span className="text-zinc-400 font-medium">Status do Plano:</span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-[10px] uppercase">
+                {isSuspended ? 'Bloqueado' : 'Renovação Pendente'}
+              </span>
             </div>
           </div>
 
-          {/* Botão Principal WhatsApp com Alto Impacto Visual */}
+          {/* Botão de Ação Primária - iOS Neon Emerald */}
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-400 hover:bg-emerald-300 px-6 py-4 text-base font-headline font-black uppercase text-slate-950 shadow-xl shadow-emerald-400/40 transition-all transform hover:scale-[1.02] active:scale-100"
+            className="mt-6 group relative w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-zinc-950 font-black uppercase text-xs tracking-wider shadow-[0_0_30px_rgba(16,185,129,0.35)] transition-all hover:shadow-[0_0_45px_rgba(16,185,129,0.5)] hover:scale-[1.02] active:scale-[0.98]"
           >
-            <MessageCircle className="h-6 w-6 text-slate-950 fill-slate-950 stroke-emerald-400" />
+            <MessageCircle className="h-5 w-5 fill-zinc-950 stroke-emerald-500" />
             <span>Renovar Assinatura no WhatsApp</span>
           </a>
 
-          {/* Número do Suporte em Caixa Destacada com Texto Claro */}
-          <div className="mt-4 flex items-center justify-center gap-2 text-sm font-bold text-white bg-slate-800/90 px-4 py-3 rounded-xl border-2 border-slate-700 shadow-md w-full">
-            <Phone className="h-4 w-4 text-emerald-400 shrink-0" />
-            <span className="text-slate-200">Suporte Direto: <strong className="text-emerald-400 font-black text-base ml-1">{phoneFormatted}</strong></span>
+          {/* Suporte Direto Bar */}
+          <div className="mt-3.5 w-full rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 flex items-center justify-center gap-2 text-xs text-zinc-300">
+            <Phone className="h-4 w-4 text-emerald-400" />
+            <span>Suporte Direto:</span>
+            <strong className="text-emerald-400 font-bold tracking-wide">{phoneFormatted}</strong>
           </div>
 
-          {/* Botão Sair / Trocar de Conta com Texto Branco Totalmente Visível */}
+          {/* Botão Voltar ao Login */}
           <button
             onClick={onLogout}
-            className="mt-5 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white bg-slate-800 hover:bg-slate-700 px-6 py-3 rounded-xl border-2 border-slate-600 shadow-lg transition-all hover:scale-[1.02]"
+            className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors py-2"
           >
-            <LogOut className="h-4 w-4 text-white" />
-            <span>Voltar à tela de login</span>
+            <LogOut className="h-4 w-4" />
+            <span>Voltar para a tela de login</span>
           </button>
 
         </div>
