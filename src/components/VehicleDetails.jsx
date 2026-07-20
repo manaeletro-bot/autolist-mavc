@@ -774,7 +774,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
             className={`flex-1 md:flex-initial h-10 px-3 md:px-4 border rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${
               vehicle.isSold
                 ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/25 hover:border-amber-500/40'
-                : 'bg-slate-900 hover:bg-slate-850 border-slate-800 hover:border-slate-750 text-slate-400 hover:text-slate-200'
+                : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 border-emerald-400 font-black shadow-lg shadow-emerald-500/20'
             }`}
             title={vehicle.isSold ? 'Cancelar Venda e Reativar' : 'Registrar Venda'}
           >
@@ -1313,7 +1313,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                     </button>
                     <button
                       type="submit"
-                      className="h-10 px-6 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-sky-500/10"
+                      className="h-10 px-6 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"
                     >
                       Confirmar Venda
                     </button>
@@ -1946,8 +1946,9 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                           });
                           setIsEditingSale(true);
                         }}
-                        className="h-9 px-5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-md"
+                        className="h-10 px-5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-500/20 inline-flex items-center gap-1.5"
                       >
+                        <DollarSign className="h-4 w-4" />
                         Registrar Negociação / Venda
                       </button>
                     </div>
