@@ -772,14 +772,14 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
             }}
             className={`flex-1 md:flex-initial h-10 px-3 md:px-4 border rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${
               vehicle.isSold
-                ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/25 hover:border-emerald-500/40'
+                ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/25 hover:border-amber-500/40'
                 : 'bg-slate-900 hover:bg-slate-850 border-slate-800 hover:border-slate-750 text-slate-400 hover:text-slate-200'
             }`}
-            title={vehicle.isSold ? 'Cancelar Venda' : 'Registrar Venda'}
+            title={vehicle.isSold ? 'Cancelar Venda e Reativar' : 'Registrar Venda'}
           >
             <DollarSign className="h-4 w-4" />
-            <span className="hidden md:inline">{vehicle.isSold ? 'Vendido ✓' : 'Registrar Venda'}</span>
-            <span className="md:hidden">{vehicle.isSold ? 'Vendido' : 'Vender'}</span>
+            <span className="hidden md:inline">{vehicle.isSold ? 'Cancelar Venda' : 'Registrar Venda'}</span>
+            <span className="md:hidden">{vehicle.isSold ? 'Cancelar Venda' : 'Vender'}</span>
           </button>
 
           <button
