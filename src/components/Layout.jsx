@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, ShieldAlert, LayoutDashboard, Database, Menu, X, DollarSign, Shield, LogOut, User, Store, ArrowLeft } from 'lucide-react';
+import { Wrench, ShieldAlert, LayoutDashboard, Database, Menu, X, DollarSign, Shield, LogOut, User, Store, ArrowLeft, Power, Minimize2 } from 'lucide-react';
 import { db } from '../services/db';
 import { authService } from '../services/authService';
 import { AuthModal } from './AuthModal';
@@ -9,9 +9,74 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => authService.getCurrentUser());
 
+  // Estados para PWA e Saída em 2 toques (sem deslogar)
+  const [exitConfirmCount, setExitConfirmCount] = useState(0);
+  const [showExitToast, setShowExitToast] = useState(false);
+  const [isAppMinimized, setIsAppMinimized] = useState(false);
+
   const dbMode = db.getMode();
   const hasSupabase = db.isSupabaseAvailable();
   const isLocked = currentUser && authService.isLocked(currentUser);
+
+  // Timer para reset do contador de confirmação de saída (2 toques / 2 clique)
+  useEffect(() => {
+    let timer;
+    if (exitConfirmCount > 0) {
+      setShowExitToast(true);
+      timer = setTimeout(() => {
+        setExitConfirmCount(0);
+        setShowExitToast(false);
+      }, 2500);
+    } else {
+      setShowExitToast(false);
+    }
+    return () => clearTimeout(timer);
+  }, [exitConfirmCount]);
+
+  // Interceptador do botão Voltar do dispositivo móvel / Android PWA
+  useEffect(() => {
+    window.history.pushState({ page: 'pwa_home' }, '');
+
+    const handlePopState = () => {
+      if (currentTab !== 'dashboard') {
+        setCurrentTab('dashboard');
+        window.history.pushState({ page: 'pwa_home' }, '');
+        return;
+      }
+
+      if (exitConfirmCount === 0) {
+        setExitConfirmCount(1);
+        window.history.pushState({ page: 'pwa_home' }, '');
+      } else {
+        triggerAppExit();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentTab, exitConfirmCount]);
+
+  const triggerAppExit = () => {
+    try {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        window.close();
+      }
+    } catch (e) {
+      console.log('Navegador PWA:', e);
+    }
+    setIsAppMinimized(true);
+    setCurrentTab('dashboard');
+    setIsMobileMenuOpen(false);
+    setExitConfirmCount(0);
+  };
+
+  const handleAppExitClick = () => {
+    if (exitConfirmCount === 0) {
+      setExitConfirmCount(1);
+    } else {
+      triggerAppExit();
+    }
+  };
 
   const handleToggleDbMode = () => {
     try {
@@ -50,8 +115,38 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans relative">
       
+      {/* Toast de Alerta para Saída em 2 Toques / 2 Cliques (PWA) */}
+      {showExitToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-amber-500 text-slate-950 px-5 py-3 rounded-2xl shadow-2xl border-2 border-amber-300 text-xs font-black uppercase tracking-wider flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200">
+          <ShieldAlert className="h-4.5 w-4.5 shrink-0 animate-pulse text-slate-950" />
+          <span>Clique / Pressione novamente para sair do aplicativo</span>
+        </div>
+      )}
+
+      {/* Overlay de Aplicativo Minimizado PWA (Sem deslogar) */}
+      {isAppMinimized && (
+        <div className="fixed inset-0 z-[110] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-200">
+          <div className="h-20 w-20 bg-sky-500/10 border-2 border-sky-500/30 text-sky-400 rounded-3xl flex items-center justify-center mb-4 shadow-2xl shadow-sky-500/10">
+            <Wrench className="h-10 w-10" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-headline font-black text-white uppercase tracking-tight">
+            AUTOLIST PWA MINIMIZADO
+          </h2>
+          <p className="text-xs md:text-sm text-slate-400 max-w-sm mt-2 font-semibold">
+            Sua conta permanece logada de forma segura. Clique abaixo para retornar à tela inicial do sistema.
+          </p>
+
+          <button
+            onClick={() => setIsAppMinimized(false)}
+            className="mt-6 px-6 py-3.5 bg-sky-500 hover:bg-sky-400 text-white font-black uppercase text-xs rounded-2xl shadow-xl shadow-sky-500/20 transition-all flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" /> Voltar ao Painel Geral
+          </button>
+        </div>
+      )}
+
       {/* Modal de Autenticação se não houver usuário logado */}
       {!currentUser && (
         <AuthModal onLoginSuccess={handleLoginSuccess} />
@@ -156,7 +251,7 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
             </div>
           </div>
 
-          {/* Card do Usuário Logado / Trocar Usuário (EMBAIXO DO BANCO DE DADOS) */}
+          {/* Card do Usuário Logado / Opções PWA e Logout */}
           {currentUser ? (
             <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
               <div className="flex items-center justify-between">
@@ -188,12 +283,26 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
                 </span>
               </div>
 
+              {/* Botão Sair do App (Minimizar PWA em 2 toques sem deslogar) */}
+              <button
+                onClick={handleAppExitClick}
+                className={`w-full py-2 border rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm ${
+                  exitConfirmCount > 0
+                    ? 'bg-amber-500 text-slate-950 border-amber-400 animate-pulse font-black'
+                    : 'bg-slate-800 hover:bg-slate-750 text-slate-200 border-slate-700'
+                }`}
+              >
+                <Power className="h-3.5 w-3.5" />
+                {exitConfirmCount > 0 ? 'Clique Novamente p/ Sair' : 'Sair do App (PWA)'}
+              </button>
+
+              {/* Botão Deslogar da Conta */}
               <button
                 onClick={handleLogout}
-                className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                className="w-full py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-[8px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
               >
-                <LogOut className="h-3.5 w-3.5" />
-                Sair da Conta
+                <LogOut className="h-3 w-3" />
+                Encerrar / Trocar Conta
               </button>
             </div>
           ) : (
