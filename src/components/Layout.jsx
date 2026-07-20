@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, ShieldAlert, LayoutDashboard, Database, Menu, X, DollarSign, Shield, LogOut, User, Store } from 'lucide-react';
+import { Wrench, ShieldAlert, LayoutDashboard, Database, Menu, X, DollarSign, Shield, LogOut, User, Store, ArrowLeft } from 'lucide-react';
 import { db } from '../services/db';
 import { authService } from '../services/authService';
 import { AuthModal } from './AuthModal';
 
-export default function Layout({ children, currentTab, setCurrentTab, onAddVehicleClick, onUserChange }) {
+export default function Layout({ children, currentTab, setCurrentTab, onAddVehicleClick, onUserChange, selectedVehicle, onBackVehicle }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => authService.getCurrentUser());
 
@@ -217,22 +217,55 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
       <div className="flex-1 flex flex-col overflow-hidden h-full">
         {/* Header */}
         <header className="h-16 border-b border-slate-800 bg-slate-900/40 backdrop-blur-md px-4 md:px-8 flex items-center justify-between shrink-0 md:hidden">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/5 shrink-0">
-              <Wrench className="h-4.5 w-4.5" />
+          {currentTab === 'details' && selectedVehicle ? (
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
+              <button
+                onClick={onBackVehicle}
+                className="h-9 w-9 border border-slate-800 bg-slate-950 hover:bg-slate-850 rounded-xl flex items-center justify-center text-slate-300 hover:text-white transition-all shrink-0 active:scale-95 shadow-sm"
+                title="Voltar ao Painel"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 flex-wrap leading-none">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-sky-400">
+                    {selectedVehicle.brand}
+                  </span>
+                  <span className="h-1 w-1 bg-slate-700 rounded-full"></span>
+                  <span className="text-[9px] font-black tracking-widest text-slate-300 uppercase bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
+                    {selectedVehicle.plate || 'SEM PLACA'}
+                  </span>
+                  {selectedVehicle.isSold && (
+                    <span className="text-[8px] font-black tracking-widest text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                      Vendido
+                    </span>
+                  )}
+                </div>
+                
+                <h2 className="text-xs font-headline font-black uppercase text-white tracking-tight leading-tight truncate mt-0.5">
+                  {selectedVehicle.model}
+                </h2>
+              </div>
             </div>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-xs font-headline font-black uppercase tracking-tight text-white leading-none">
-                AUTOLIST <span className="text-sky-400">-</span>
-              </h1>
-              <span className="text-xs font-headline font-black uppercase tracking-tight text-sky-400 leading-none mt-0.5">
-                MAVC
-              </span>
-              <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-0.5">
-                Gestão & Vistoria
-              </p>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 border border-sky-500/20 shadow-lg shadow-sky-500/5 shrink-0">
+                <Wrench className="h-4.5 w-4.5" />
+              </div>
+              <div className="flex flex-col justify-center">
+                <h1 className="text-xs font-headline font-black uppercase tracking-tight text-white leading-none">
+                  AUTOLIST <span className="text-sky-400">-</span>
+                </h1>
+                <span className="text-xs font-headline font-black uppercase tracking-tight text-sky-400 leading-none mt-0.5">
+                  MAVC
+                </span>
+                <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-0.5">
+                  Gestão & Vistoria
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Right-Side Menu Toggle */}
           <div className="flex items-center gap-3 text-xs font-bold text-slate-400">

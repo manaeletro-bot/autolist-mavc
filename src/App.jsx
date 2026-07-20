@@ -112,6 +112,11 @@ function UserApp() {
       setCurrentTab={setCurrentTab}
       onAddVehicleClick={handleAddVehicleClick}
       onUserChange={fetchVehicles}
+      selectedVehicle={currentTab === 'details' ? selectedVehicle : null}
+      onBackVehicle={() => {
+        setSelectedVehicle(null);
+        setCurrentTab('dashboard');
+      }}
     >
       {loading && vehicles.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 space-y-4">

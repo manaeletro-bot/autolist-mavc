@@ -670,11 +670,12 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
   return (
     <div className="space-y-6 pb-12">
       {/* Detail Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4 md:pb-5">
+        {/* Title & Back Button: Visible on Desktop (on Mobile it renders directly in top bar) */}
+        <div className="hidden md:flex items-center gap-3">
           <button
             onClick={onBack}
-            className="h-10 w-10 border border-slate-800 bg-slate-900/40 hover:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-205 transition-all shrink-0"
+            className="h-10 w-10 border border-slate-800 bg-slate-900/40 hover:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-200 transition-all shrink-0"
             title="Voltar ao Painel"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -690,7 +691,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 {vehicle.plate || 'SEM PLACA'}
               </span>
               {vehicle.isSold && (
-                <span className="text-[9px] font-black tracking-widest text-emerald-450 uppercase bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded animate-pulse">
+                <span className="text-[9px] font-black tracking-widest text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded animate-pulse">
                   Vendido
                 </span>
               )}
@@ -702,8 +703,8 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
           </div>
         </div>
 
-        {/* Action Panel */}
-        <div className="flex flex-wrap items-center gap-2 self-stretch md:self-auto justify-end">
+        {/* Action Panel: Occupies full top line on mobile */}
+        <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
           {/* Mark as Sold / Return Active Toggle */}
           <button
             onClick={() => {
@@ -724,9 +725,9 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 setActiveTab('financial');
               }
             }}
-            className={`h-10 px-3 md:px-4 border rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 md:flex-initial h-10 px-3 md:px-4 border rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${
               vehicle.isSold
-                ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-405 text-emerald-400 border-emerald-500/25 hover:border-emerald-500/40'
+                ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/25 hover:border-emerald-500/40'
                 : 'bg-slate-900 hover:bg-slate-850 border-slate-800 hover:border-slate-750 text-slate-400 hover:text-slate-200'
             }`}
             title={vehicle.isSold ? 'Cancelar Venda' : 'Registrar Venda'}
@@ -738,7 +739,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
 
           <button
             onClick={() => setIsExportModalOpen(true)}
-            className="h-10 px-3 md:px-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 text-slate-300"
+            className="flex-1 md:flex-initial h-10 px-3 md:px-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 text-slate-300"
             title="Baixar Dados"
           >
             <FileText className="h-4 w-4" />
@@ -752,7 +753,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                 onDeleteVehicle(vehicle.id);
               }
             }}
-            className="h-10 px-3 md:px-4 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 hover:border-rose-500/40 text-rose-455 text-rose-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 active:scale-95"
+            className="flex-1 md:flex-initial h-10 px-3 md:px-4 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 hover:border-rose-500/40 text-rose-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 active:scale-95"
             title="Excluir Veículo"
           >
             <Trash2 className="h-4 w-4" />
