@@ -3,6 +3,7 @@ import { Wrench, ShieldAlert, LayoutDashboard, Database, Menu, X, DollarSign, Sh
 import { db } from '../services/db';
 import { authService } from '../services/authService';
 import { AuthModal } from './AuthModal';
+import { SubscriptionLockModal } from './SubscriptionLockModal';
 
 export default function Layout({ children, currentTab, setCurrentTab, onAddVehicleClick, onUserChange, selectedVehicle, onBackVehicle }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -10,6 +11,7 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
 
   const dbMode = db.getMode();
   const hasSupabase = db.isSupabaseAvailable();
+  const isLocked = currentUser && authService.isLocked(currentUser);
 
   const handleToggleDbMode = () => {
     try {
@@ -53,6 +55,11 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
       {/* Modal de Autenticação se não houver usuário logado */}
       {!currentUser && (
         <AuthModal onLoginSuccess={handleLoginSuccess} />
+      )}
+
+      {/* Tela de Bloqueio por Expiração / Suspensão de Conta */}
+      {currentUser && isLocked && (
+        <SubscriptionLockModal user={currentUser} onLogout={handleLogout} />
       )}
 
       {/* Mobile Menu Backdrop */}

@@ -34,8 +34,8 @@ const DEFAULT_LOJISTA = {
   storeName: 'Auto Motors MAVC',
   role: 'user',
   status: 'active',
-  plan: 'test_3d',
-  planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+  plan: 'test_2d',
+  planExpiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
   createdAt: new Date().toISOString()
 };
 
@@ -70,8 +70,8 @@ initUsersStore();
 
 export function calculateExpirationDate(planType) {
   const now = new Date();
-  if (planType === 'test_3d') {
-    return new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+  if (planType === 'test_2d' || planType === 'test_3d') {
+    return new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString();
   }
   if (planType === 'monthly') {
     return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -82,7 +82,7 @@ export function calculateExpirationDate(planType) {
   if (planType === 'lifetime') {
     return null; // Sem expiração
   }
-  return new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+  return new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString();
 }
 
 export const authService = {
@@ -98,6 +98,22 @@ export const authService = {
     } catch (e) {
       return null;
     }
+  },
+
+  isExpired(user) {
+    if (!user) return false;
+    if (user.role === 'admin' || user.id === 'usr_gestor_master' || user.id === 'usr_admin') return false;
+    if (user.plan === 'lifetime') return false;
+    if (user.planExpiresAt) {
+      return new Date(user.planExpiresAt) < new Date();
+    }
+    return false;
+  },
+
+  isLocked(user) {
+    if (!user) return false;
+    if (user.status === 'suspended') return true;
+    return this.isExpired(user);
   },
 
   async login(email, password) {
@@ -127,17 +143,6 @@ export const authService = {
       throw new Error('Senha incorreta.');
     }
 
-    if (user.status === 'suspended') {
-      throw new Error('Esta conta está suspensa pelo Gestor. Entre em contato com o suporte.');
-    }
-
-    // Verificar se o plano expirou (apenas se não for vitalício)
-    if (user.plan !== 'lifetime' && user.planExpiresAt) {
-      if (new Date(user.planExpiresAt) < new Date()) {
-        throw new Error('Sua assinatura / período de teste expirou. Entre em contato com o Gestor para renovar seu plano.');
-      }
-    }
-
     const sessionUser = { ...user };
     delete sessionUser.passwordHash;
 
@@ -162,8 +167,8 @@ export const authService = {
       storeName: (storeName || 'Minha Revenda').trim(),
       role: 'user',
       status: 'active',
-      plan: 'test_3d',
-      planExpiresAt: calculateExpirationDate('test_3d'),
+      plan: 'test_2d',
+      planExpiresAt: calculateExpirationDate('test_2d'),
       createdAt: new Date().toISOString()
     };
 
@@ -279,8 +284,8 @@ export const authService = {
       storeName: (storeName || 'Revenda Lojista').trim(),
       role: 'user',
       status: 'active',
-      plan: planType || 'test_3d',
-      planExpiresAt: calculateExpirationDate(planType || 'test_3d'),
+      plan: planType || 'test_2d',
+      planExpiresAt: calculateExpirationDate(planType || 'test_2d'),
       createdAt: new Date().toISOString()
     };
 

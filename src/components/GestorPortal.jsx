@@ -23,7 +23,7 @@ export function GestorPortal() {
     storeName: '',
     email: '',
     password: '',
-    planType: 'test_3d'
+    planType: 'test_2d'
   });
   const [addUserError, setAddUserError] = useState('');
 
@@ -304,7 +304,7 @@ export function GestorPortal() {
             <Clock className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Em Teste (3 Dias)</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Em Teste (2 Dias)</span>
             <p className="text-2xl font-headline font-black text-purple-400">{testCount}</p>
           </div>
         </div>
@@ -670,7 +670,7 @@ export function GestorPortal() {
                   onChange={(e) => setNewUserForm({ ...newUserForm, planType: e.target.value })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
                 >
-                  <option value="test_3d">⏱️ Período de Teste (3 Dias)</option>
+                  <option value="test_2d">⏱️ Período de Teste (2 Dias)</option>
                   <option value="monthly">📅 Plano Mensal (30 Dias)</option>
                   <option value="yearly">🗓️ Plano Anual (365 Dias)</option>
                   <option value="lifetime">♾️ Licença Vitalícia</option>
