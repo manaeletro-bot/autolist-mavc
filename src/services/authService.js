@@ -87,6 +87,10 @@ export function calculateExpirationDate(planType) {
 
 export const authService = {
   // --- Sessão do Lojista (Painel Principal) ---
+  resetDemoSession() {
+    localStorage.removeItem('vora_demo_vehicles');
+  },
+
   getCurrentUser() {
     try {
       const activeData = localStorage.getItem('vora_active_user');
@@ -100,6 +104,11 @@ export const authService = {
     initUsersStore();
     const users = JSON.parse(localStorage.getItem('vora_users') || '[]');
     const cleanEmail = (email || '').trim().toLowerCase();
+
+    // Se for o usuário de teste lojista, reinicia a sessão de teste para os veículos padrão
+    if (cleanEmail === 'lojista@autolist.com') {
+      this.resetDemoSession();
+    }
 
     // Permite login com credenciais do Gestor Master no painel do usuário
     if (cleanEmail === MASTER_GESTOR_CREDENTIALS.email && password === MASTER_GESTOR_CREDENTIALS.passwordHash) {
@@ -164,11 +173,18 @@ export const authService = {
     const sessionUser = { ...newUser };
     delete sessionUser.passwordHash;
 
+    // Inicializa veículos do novo usuário como array vazio (do zero!)
+    localStorage.setItem(`vora_user_vehicles_${newUser.id}`, JSON.stringify([]));
+
     localStorage.setItem('vora_active_user', JSON.stringify(sessionUser));
     return sessionUser;
   },
 
   logout() {
+    const active = this.getCurrentUser();
+    if (active && (active.id === 'usr_demo_lojista' || active.email === 'lojista@autolist.com')) {
+      this.resetDemoSession();
+    }
     localStorage.removeItem('vora_active_user');
   },
 
