@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vora-vistoria-cache-v1';
+const CACHE_NAME = 'vora-vistoria-cache-v3';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -34,13 +34,16 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Bypass cache for API calls, hot-module-reloads, and non-GET requests
+  // Bypass cache for API calls, hot-module-reloads, local development paths, dev server ports, and non-GET requests
   if (
     event.request.method !== 'GET' || 
     url.pathname.startsWith('/api') || 
     url.pathname.includes('/api/') ||
     url.pathname.includes('@vite') ||
-    url.pathname.includes('hot-update.json')
+    url.pathname.includes('hot-update.json') ||
+    url.pathname.includes('/src/') ||
+    url.pathname.includes('/node_modules/') ||
+    ['5173', '5174', '5175', '5176'].includes(url.port)
   ) {
     return;
   }

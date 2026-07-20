@@ -16,6 +16,17 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Prevent focused numeric inputs from changing value on mouse scroll/wheel
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.target && e.target.type === 'number') {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', handleWheel, { capture: true });
+  }, []);
+
   // Se a rota for /gestor, renderiza o Portal do Gestor completamente independente!
   if (pathname.startsWith('/gestor')) {
     return <GestorPortal />;

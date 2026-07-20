@@ -4,7 +4,14 @@ Este arquivo registra a linha do tempo e a evolução das versões do sistema AU
 
 ## Linha do Tempo de Versões
 
-### Versão 2.8 - Otimização de UX para Campos Numéricos & Redesign Claro da Seção de Débitos (Atual)
+### Versão 2.9 - Padronização com CurrencyInput, Formatação BRL Fiel e Reset de Scroll na Navegação (Atual)
+*   **Foco:** Padronização global de inputs de moedas usando o componente CurrencyInput, formatação robusta de BRL e correção de persistência de scroll na navegação.
+*   **Melhorias:**
+    *   **CurrencyInput em Todo o Sistema:** Substituição completa de todos os inputs numéricos de moeda por `CurrencyInput` em `VehicleForm.jsx` e `VehicleDetails.jsx`, incluindo despesas (quitação, multas, documentação, outras taxas, e despesas dinâmicas customizadas) e preços de revenda.
+    *   **Formatação BRL Robusta e Manual:** Implementação de um formatador customizado `formatToBRL` baseado em expressões regulares e fatiamento numérico. Isso garante que a exibição sempre contenha separador de milhar com ponto (`.`) e decimal com vírgula (`,`) (ex: `5.000,00`), evitando discrepâncias de locale do navegador.
+    *   **Reset de Scroll no SPA:** Introdução de uma referência `mainRef` ao container de rolagem vertical principal no `Layout.jsx` e um efeito `useEffect` que redefine a rolagem para o topo (`scrollTop = 0`) ao trocar de abas ou selecionar um veículo.
+
+### Versão 2.8 - Otimização de UX para Campos Numéricos & Redesign Claro da Seção de Débitos
 *   **Foco:** Eliminação de atrito de digitação em valores numéricos ("zero preso") e aumento de contraste visual em subformulários financeiros.
 *   **Melhorias:**
     *   **Auto-Seleção em Foco:** Implementada a propriedade `onFocus={(e) => e.target.select()}` em todos os campos numéricos de finanças, vendas, KM e reparos (`VehicleDetails.jsx`, `VehicleForm.jsx`, `RepairsTab.jsx`).

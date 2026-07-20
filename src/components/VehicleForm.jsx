@@ -6,6 +6,71 @@ const formatCurrency = (val) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
 };
 
+const formatToBRL = (val) => {
+  if (val === undefined || val === null || val === '') return '';
+  let cleanVal = val.toString().replace(/R\$\s?/, '').trim();
+  if (cleanVal === '') return '';
+  if (cleanVal.includes(',') && cleanVal.includes('.')) {
+    cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
+  } else if (cleanVal.includes(',')) {
+    cleanVal = cleanVal.replace(',', '.');
+  }
+  const num = parseFloat(cleanVal);
+  if (isNaN(num)) return '';
+  const parts = num.toFixed(2).split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1];
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${formattedInteger},${decimalPart}`;
+};
+
+const parseFromBRL = (val) => {
+  if (val === undefined || val === null || val === '') return '';
+  let cleanVal = val.toString().replace(/R\$\s?/, '').trim();
+  if (cleanVal.includes(',')) {
+    cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
+  }
+  const num = parseFloat(cleanVal);
+  if (isNaN(num)) return '';
+  return num.toFixed(2);
+};
+
+const CurrencyInput = ({ value, onChange, className, placeholder, ...props }) => {
+  const [focused, setFocused] = useState(false);
+  const [localValue, setLocalValue] = useState(value);
+
+  React.useEffect(() => {
+    if (!focused) {
+      setLocalValue(formatToBRL(value));
+    }
+  }, [value, focused]);
+
+  return (
+    <input
+      type="text"
+      value={focused ? localValue : formatToBRL(localValue)}
+      onFocus={(e) => {
+        setFocused(true);
+        setLocalValue(parseFromBRL(value));
+        setTimeout(() => e.target.select(), 0);
+      }}
+      onBlur={(e) => {
+        setFocused(false);
+        const parsed = parseFromBRL(e.target.value);
+        const formatted = formatToBRL(parsed);
+        setLocalValue(formatted);
+        onChange(parsed);
+      }}
+      onChange={(e) => {
+        setLocalValue(e.target.value);
+      }}
+      className={className}
+      placeholder={placeholder}
+      {...props}
+    />
+  );
+};
+
 const getBase64SizeString = (base64Str) => {
   if (!base64Str) return '';
   if (!base64Str.startsWith('data:image')) return 'Nuvem';
@@ -79,6 +144,17 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handlePriceBlur = (e) => {
+    const { name, value } = e.target;
+    const parsed = parseFloat(value);
+    if (!isNaN(parsed)) {
+      setFormData(prev => ({
+        ...prev,
+        [name]: parsed.toFixed(2)
+      }));
+    }
   };
 
   const handleAddCustomExpense = () => {
@@ -466,14 +542,11 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
           <div className="space-y-5">
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor de Aquisição (R$)</label>
-              <input
-                type="number"
-                name="acquisitionPrice"
+              <CurrencyInput
                 value={formData.acquisitionPrice}
-                onFocus={(e) => e.target.select()}
-                onChange={handlePriceChange}
-                className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-black text-emerald-450 text-emerald-400 placeholder-slate-650"
-                placeholder="Ex: 45000"
+                onChange={(val) => setFormData(prev => ({ ...prev, acquisitionPrice: val }))}
+                className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-black text-emerald-450 text-emerald-400 placeholder-slate-650 shadow-sm"
+                placeholder="0,00"
               />
             </div>
 
@@ -527,28 +600,22 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                 {/* Trade-in Value */}
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor Pago como Troca (R$)</label>
-                  <input
-                    type="number"
-                    name="purchaseTradeInVal"
+                  <CurrencyInput
                     value={formData.purchaseTradeInVal}
-                    onFocus={(e) => e.target.select()}
-                    onChange={handlePriceChange}
-                    className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                    placeholder="0"
+                    onChange={(val) => setFormData(prev => ({ ...prev, purchaseTradeInVal: val }))}
+                    className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                    placeholder="0,00"
                   />
                 </div>
 
                 {/* Cash/Entry Paid */}
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor Pago em Dinheiro (Entrada) (R$)</label>
-                  <input
-                    type="number"
-                    name="purchaseCashVal"
+                  <CurrencyInput
                     value={formData.purchaseCashVal}
-                    onFocus={(e) => e.target.select()}
-                    onChange={handlePriceChange}
-                    className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                    placeholder="0"
+                    onChange={(val) => setFormData(prev => ({ ...prev, purchaseCashVal: val }))}
+                    className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                    placeholder="0,00"
                   />
                 </div>
 
@@ -569,14 +636,11 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                 {/* Installment Value */}
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor de Cada Parcela (R$)</label>
-                  <input
-                    type="number"
-                    name="purchaseInstallmentPrice"
+                  <CurrencyInput
                     value={formData.purchaseInstallmentPrice}
-                    onFocus={(e) => e.target.select()}
-                    onChange={handlePriceChange}
-                    className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                    placeholder="0"
+                    onChange={(val) => setFormData(prev => ({ ...prev, purchaseInstallmentPrice: val }))}
+                    className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                    placeholder="0,00"
                   />
                 </div>
 
@@ -615,70 +679,55 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
               {/* Payoff / Financing payoff */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Quitação de Financiamento (R$)</label>
-                <input
-                  type="number"
-                  name="payoffExpense"
+                <CurrencyInput
                   value={formData.payoffExpense}
-                  onFocus={(e) => e.target.select()}
-                  onChange={handlePriceChange}
+                  onChange={(val) => setFormData(prev => ({ ...prev, payoffExpense: val }))}
                   className="w-full h-10 px-3 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-sm"
-                  placeholder="Ex: 15000"
+                  placeholder="0,00"
                 />
               </div>
 
               {/* Fines */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Multas Pendentes (R$)</label>
-                <input
-                  type="number"
-                  name="finesExpense"
+                <CurrencyInput
                   value={formData.finesExpense}
-                  onFocus={(e) => e.target.select()}
-                  onChange={handlePriceChange}
+                  onChange={(val) => setFormData(prev => ({ ...prev, finesExpense: val }))}
                   className="w-full h-10 px-3 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-sm"
-                  placeholder="Ex: 850"
+                  placeholder="0,00"
                 />
               </div>
 
               {/* Documentation */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Documentação e Transferência (R$)</label>
-                <input
-                  type="number"
-                  name="docExpense"
+                <CurrencyInput
                   value={formData.docExpense}
-                  onFocus={(e) => e.target.select()}
-                  onChange={handlePriceChange}
+                  onChange={(val) => setFormData(prev => ({ ...prev, docExpense: val }))}
                   className="w-full h-10 px-3 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-sm"
-                  placeholder="Ex: 1200"
+                  placeholder="0,00"
                 />
               </div>
 
               {/* Other Expenses */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Outras Despesas de Doc (R$)</label>
-                <input
-                  type="number"
-                  name="otherExpenses"
+                <CurrencyInput
                   value={formData.otherExpenses}
-                  onFocus={(e) => e.target.select()}
-                  onChange={handlePriceChange}
+                  onChange={(val) => setFormData(prev => ({ ...prev, otherExpenses: val }))}
                   className="w-full h-10 px-3 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-sm"
-                  placeholder="Ex: 500"
+                  placeholder="0,00"
                 />
               </div>
 
               {/* Transfer & Insurance */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Débitos de Transferência e Seguro (R$)</label>
-                <input
-                  type="number"
-                  name="transferInsuranceExpense"
+                <CurrencyInput
                   value={formData.transferInsuranceExpense}
-                  onFocus={(e) => e.target.select()}
-                  onChange={handlePriceChange}
+                  onChange={(val) => setFormData(prev => ({ ...prev, transferInsuranceExpense: val }))}
                   className="w-full h-10 px-3 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-sm"
-                  placeholder="Ex: 600"
+                  placeholder="0,00"
                 />
               </div>
 
@@ -704,12 +753,10 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
                       placeholder="Descrição (ex: IPVA Atrasado)"
                       className="flex-1 h-9 px-3 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-sm"
                     />
-                    <input
-                      type="number"
+                    <CurrencyInput
                       value={item.price}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleCustomExpenseChange(item.id, 'price', e.target.value)}
-                      placeholder="Valor (R$)"
+                      onChange={(val) => handleCustomExpenseChange(item.id, 'price', val)}
+                      placeholder="0,00"
                       className="w-28 h-9 px-3 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400 shadow-sm"
                     />
                     <button
@@ -726,37 +773,79 @@ export default function VehicleForm({ vehicle, onSave, onCancel }) {
 
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Preço Estimado de Revenda (R$)</label>
-              <input
-                type="number"
-                name="resalePrice"
+              <CurrencyInput
                 value={formData.resalePrice}
-                onFocus={(e) => e.target.select()}
-                onChange={handlePriceChange}
-                className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-black text-sky-400 placeholder-slate-650"
-                placeholder="Ex: 55000"
+                onChange={(val) => setFormData(prev => ({ ...prev, resalePrice: val }))}
+                className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-black text-sky-400 placeholder-slate-650 shadow-sm"
+                placeholder="0,00"
               />
             </div>
 
-            <div className="space-y-2 border-t border-slate-850/80 pt-4">
-              <div className="flex justify-between items-center">
-                <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Margem Máxima de Desconto</label>
-                <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-                  {formData.maxDiscountPercent}%
-                </span>
+            <div className="space-y-3 border-t border-slate-850/80 pt-4">
+              <label className="text-[9px] font-black uppercase tracking-wider text-slate-400 block">Margem Máxima de Desconto</label>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {/* Desconto em Porcentagem */}
+                <div className="space-y-1">
+                  <label className="text-[8px] font-black uppercase tracking-wider text-slate-500">Porcentagem (%)</label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      name="maxDiscountPercent"
+                      value={formData.maxDiscountPercent}
+                      onFocus={(e) => e.target.select()}
+                      onChange={handleChange}
+                      className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white pr-7"
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                    />
+                    <span className="absolute right-3 top-2.5 text-[10px] font-black text-slate-500">%</span>
+                  </div>
+                </div>
+
+                {/* Desconto em Valor Real (R$) */}
+                <div className="space-y-1">
+                  <label className="text-[8px] font-black uppercase tracking-wider text-slate-500">Valor Real (R$)</label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={rsPrice > 0 ? (rsPrice * (parseFloat(formData.maxDiscountPercent) || 0) / 100).toFixed(2) : ''}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        const pct = rsPrice > 0 ? (val / rsPrice) * 100 : 0;
+                        const roundedPct = parseFloat(pct.toFixed(2));
+                        setFormData(prev => ({
+                          ...prev,
+                          maxDiscountPercent: roundedPct
+                        }));
+                      }}
+                      className="w-full h-10 px-3 bg-slate-950 border border-slate-850 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white pl-8"
+                      placeholder="0,00"
+                      disabled={rsPrice <= 0}
+                      title={rsPrice <= 0 ? "Defina o Preço de Revenda primeiro" : ""}
+                    />
+                    <span className="absolute left-3 top-2.5 text-[10px] font-black text-slate-500">R$</span>
+                  </div>
+                </div>
               </div>
+
+              {/* Slider de ajuste rápido */}
               <input
                 type="range"
                 name="maxDiscountPercent"
                 min="0"
                 max="25"
                 step="1"
-                value={formData.maxDiscountPercent}
+                value={Math.min(25, Math.max(0, Math.round(parseFloat(formData.maxDiscountPercent) || 0)))}
                 onChange={handleChange}
                 className="w-full h-2 rounded-lg bg-slate-900 cursor-pointer"
               />
               <div className="flex justify-between text-[8px] font-bold text-slate-500 uppercase">
                 <span>0% de desconto</span>
-                <span>25% máximo</span>
+                <span>25% máximo (ajuste rápido)</span>
               </div>
             </div>
 

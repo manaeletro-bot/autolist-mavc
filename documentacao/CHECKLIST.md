@@ -97,6 +97,9 @@ Roteiro de testes de regressão antes de entregas ou encerramentos de milestones
 - [x] A seção de "Débitos & Documentação Pendente" exibe fundo claro leve (`bg-slate-50`), contorno fino de 1px (`border-slate-200`) e sem blocos escuros pesados?
 - [x] Os rótulos/labels da seção de débitos estão em preto puro (`text-slate-900 font-bold`) e as caixas de texto com fundo branco (`bg-white`) com alto contraste?
 - [x] Os botões de confirmação de venda utilizam a cor Verde Esmeralda (`bg-emerald-500`) em todas as telas?
-
-
-
+## Testes de Padronização Monetária, BRL e Reset de Scroll (V2.9)
+- [x] Todos os campos financeiros de despesas de aquisição e revenda (inclusive despesas customizadas) utilizam o componente `CurrencyInput`?
+- [x] O scroll do mouse (wheel) não altera centavos ou valores de nenhum campo de preço?
+- [x] O valor monetário é formatado no formato brasileiro BRL estrito ao perder o foco (blur) ex: `5.000,00` com ponto de milhar e vírgula de decimal?
+- [x] A navegação entre abas ou seleção de veículo zera o scroll da tela (`scrollTop = 0`) para que a tela de detalhes ou formulário nunca apareça com o scroll retido?
+- [x] O build de produção do Vite (`npm run build`) executa com sucesso total (0 erros)?

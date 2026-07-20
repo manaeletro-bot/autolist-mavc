@@ -6,8 +6,16 @@ import { AuthModal } from './AuthModal';
 import { SubscriptionLockModal } from './SubscriptionLockModal';
 
 export default function Layout({ children, currentTab, setCurrentTab, onAddVehicleClick, onUserChange, selectedVehicle, onBackVehicle }) {
+  const mainRef = React.useRef(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => authService.getCurrentUser());
+
+  // Reset scroll when tab or selected vehicle changes
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+  }, [currentTab, selectedVehicle?.id]);
 
   // Estados para PWA e Saída em 2 toques (sem deslogar)
   const [exitConfirmCount, setExitConfirmCount] = useState(0);
@@ -397,7 +405,7 @@ export default function Layout({ children, currentTab, setCurrentTab, onAddVehic
         </header>
 
         {/* Content body */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           <div className="max-w-6xl mx-auto h-full animate-fade-in">
             {children}
           </div>

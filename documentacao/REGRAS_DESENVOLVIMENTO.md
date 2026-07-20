@@ -69,5 +69,11 @@ Este arquivo descreve as regras e diretrizes que devem ser obedecidas por qualqu
 ### Regra 21: Padrão de Alto Contraste para Subformulários (Estilo Limpo)
 *   Caixas e subgrupos de formulários (como Débitos e Documentação) não devem ser pintados com fundos escuros pesados (`bg-slate-900`/`bg-slate-950`). Devem utilizar fundo suave claro (`bg-slate-50/70`), contorno fino de 1px ("fio de cabelo" `border-slate-200`), rótulos em preto puro (`text-slate-900 font-bold`) e campos de texto em fundo branco puro (`bg-white`) com bordas bem delineadas, assegurando leitura perfeita em dispositivos móveis sob luz solar ou temas claros.
 
+### Regra 22: Padronização Global de Inputs Monetários com `CurrencyInput`
+*   Todos os campos que lidam com entrada de valores em Reais (BRL) devem utilizar o componente `CurrencyInput`. É estritamente proibido usar inputs nativos do tipo `number` para campos financeiros a fim de evitar flutuações acidentais ao utilizar o scroll do mouse e assegurar formatação automática na saída de campo (onBlur).
 
+### Regra 23: Formatação Fiel e Segura do Padrão de Moeda Brasileiro (BRL)
+*   A formatação de valores monetários para exibição deve utilizar uma lógica robusta e manual de formatação de strings baseada em regex e fatiamento numérico (como a função `formatToBRL`). Isso garante que a pontuação de milhar seja sempre um ponto (`.`) e a decimal seja sempre uma vírgula (`,`) (ex: `5.000,00`), neutralizando qualquer falha de suporte ou locale regional do navegador.
 
+### Regra 24: Reset de Scroll Obrigatório em SPA
+*   Toda navegação interna em Single Page Application (SPA), seja por troca de aba ou por seleção de detalhes de um veículo, deve resetar a rolagem vertical do container de conteúdo principal (`mainRef.current.scrollTop = 0`). Isso impede a persistência de scroll da listagem anterior e garante que o usuário sempre inicie no topo do novo formulário ou painel de detalhes.

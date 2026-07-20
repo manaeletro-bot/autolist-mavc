@@ -24,11 +24,26 @@ export function getSupabaseClient() {
 
 export function mapFromSupabase(row) {
   if (!row) return null;
+
+  const rawNotes = row.generalnotes || '';
+  let generalNotes = rawNotes;
+  let extras = {};
+
+  if (rawNotes.includes('\n\n---VORA_METADATA---\n')) {
+    const parts = rawNotes.split('\n\n---VORA_METADATA---\n');
+    generalNotes = parts[0];
+    try {
+      extras = JSON.parse(parts[1]);
+    } catch (e) {
+      console.warn('Error parsing metadata from generalnotes:', e);
+    }
+  }
+
   return {
     id: row.id,
     createdAt: row.created_at || row.createdAt,
     updatedAt: row.updated_at || row.updatedAt,
-    user_id: row.user_id || row.userId || null,
+    user_id: extras.user_id || null,
     brand: row.brand || '',
     model: row.model || '',
     year: row.year ? String(row.year) : '',
@@ -37,17 +52,17 @@ export function mapFromSupabase(row) {
     chassis: row.chassis || '',
     km: row.km || 0,
     fuelLevel: row.fuellevel ?? row.fuelLevel ?? '1/2',
-    fuelType: row.fueltype ?? row.fuelType ?? 'flex',
+    fuelType: extras.fuelType ?? 'flex',
     acquisitionPrice: row.acquisitionprice ?? row.acquisitionPrice ?? 0,
     resalePrice: row.resaleprice ?? row.resalePrice ?? 0,
     maxDiscountPercent: row.maxdiscountpercent ?? row.maxDiscountPercent ?? 0,
     images: row.images || [],
     checklist: row.checklist || {},
     repairs: row.repairs || [],
-    generalNotes: row.generalnotes ?? row.generalNotes ?? '',
-    doors: row.doors ? String(row.doors) : '4',
-    occupants: row.occupants ? String(row.occupants) : '5',
-    options: row.options || [],
+    generalNotes: generalNotes,
+    doors: extras.doors ?? '4',
+    occupants: extras.occupants ?? '5',
+    options: extras.options || [],
     isSold: row.issold ?? row.isSold ?? false,
     buyerName: row.buyername ?? row.buyerName ?? '',
     salePrice: row.saleprice ?? row.salePrice ?? 0,
@@ -58,20 +73,34 @@ export function mapFromSupabase(row) {
     otherExpenses: row.otherexpenses ?? row.otherExpenses ?? 0,
     transferInsuranceExpense: row.transferinsuranceexpense ?? row.transferInsuranceExpense ?? 0,
     customExpenses: row.customexpenses ?? row.customExpenses ?? [],
-    purchaseMode: row.purchasemode ?? row.purchaseMode ?? 'full',
-    purchaseTradeInDesc: row.purchasetradeindesc ?? row.purchaseTradeInDesc ?? '',
-    purchaseTradeInVal: row.purchasetradeinval ?? row.purchaseTradeInVal ?? 0,
-    purchaseCashVal: row.purchasecashval ?? row.purchaseCashVal ?? 0,
-    purchaseInstallmentsTotal: row.purchaseinstallmentstotal ?? row.purchaseInstallmentsTotal ?? 0,
-    purchaseInstallmentsPaid: row.purchaseinstallmentspaid ?? row.purchaseInstallmentsPaid ?? 0,
-    purchaseInstallmentPrice: row.purchaseinstallmentprice ?? row.purchaseInstallmentPrice ?? 0,
-    previousOwner: row.previousowner ?? row.previousOwner ?? ''
+    purchaseMode: extras.purchaseMode ?? 'full',
+    purchaseTradeInDesc: extras.purchaseTradeInDesc ?? '',
+    purchaseTradeInVal: extras.purchaseTradeInVal ?? 0,
+    purchaseCashVal: extras.purchaseCashVal ?? 0,
+    purchaseInstallmentsTotal: extras.purchaseInstallmentsTotal ?? 0,
+    purchaseInstallmentsPaid: extras.purchaseInstallmentsPaid ?? 0,
+    purchaseInstallmentPrice: extras.purchaseInstallmentPrice ?? 0,
+    previousOwner: extras.previousOwner ?? '',
+    
+    // Sale and debt settlement columns mapped from metadata
+    saleDiscount: extras.saleDiscount ?? 0,
+    saleMode: extras.saleMode ?? 'full',
+    saleTradeInDesc: extras.saleTradeInDesc ?? '',
+    saleTradeInVal: extras.saleTradeInVal ?? 0,
+    saleCashVal: extras.saleCashVal ?? 0,
+    saleInstallmentsTotal: extras.saleInstallmentsTotal ?? 0,
+    saleInstallmentsPaid: extras.saleInstallmentsPaid ?? 0,
+    saleInstallmentPrice: extras.saleInstallmentPrice ?? 0,
+    saleTradeIns: extras.saleTradeIns || [],
+    salePayments: extras.salePayments || [],
+    debtPayments: extras.debtPayments || []
   };
 }
 
 export function mapToSupabase(data) {
   const row = {};
-  if (data.user_id !== undefined) row.user_id = data.user_id;
+  
+  // Standard existing columns in the vehicles table
   if (data.brand !== undefined) row.brand = data.brand;
   if (data.model !== undefined) row.model = data.model;
   if (data.year !== undefined) row.year = String(data.year);
@@ -80,17 +109,12 @@ export function mapToSupabase(data) {
   if (data.chassis !== undefined) row.chassis = data.chassis;
   if (data.km !== undefined) row.km = parseInt(data.km) || 0;
   if (data.fuelLevel !== undefined) row.fuellevel = data.fuelLevel;
-  if (data.fuelType !== undefined) row.fueltype = data.fuelType;
   if (data.acquisitionPrice !== undefined) row.acquisitionprice = parseFloat(data.acquisitionPrice) || 0;
   if (data.resalePrice !== undefined) row.resaleprice = parseFloat(data.resalePrice) || 0;
   if (data.maxDiscountPercent !== undefined) row.maxdiscountpercent = parseFloat(data.maxDiscountPercent) || 0;
   if (data.images !== undefined) row.images = data.images;
   if (data.checklist !== undefined) row.checklist = data.checklist;
   if (data.repairs !== undefined) row.repairs = data.repairs;
-  if (data.generalNotes !== undefined) row.generalnotes = data.generalNotes;
-  if (data.doors !== undefined) row.doors = String(data.doors);
-  if (data.occupants !== undefined) row.occupants = String(data.occupants);
-  if (data.options !== undefined) row.options = data.options;
   if (data.isSold !== undefined) row.issold = data.isSold;
   if (data.buyerName !== undefined) row.buyername = data.buyerName;
   if (data.salePrice !== undefined) row.saleprice = parseFloat(data.salePrice) || 0;
@@ -101,14 +125,38 @@ export function mapToSupabase(data) {
   if (data.otherExpenses !== undefined) row.otherexpenses = parseFloat(data.otherExpenses) || 0;
   if (data.transferInsuranceExpense !== undefined) row.transferinsuranceexpense = parseFloat(data.transferInsuranceExpense) || 0;
   if (data.customExpenses !== undefined) row.customexpenses = data.customExpenses;
-  if (data.purchaseMode !== undefined) row.purchasemode = data.purchaseMode;
-  if (data.purchaseTradeInDesc !== undefined) row.purchasetradeindesc = data.purchaseTradeInDesc;
-  if (data.purchaseTradeInVal !== undefined) row.purchasetradeinval = data.purchaseTradeInVal;
-  if (data.purchaseCashVal !== undefined) row.purchasecashval = data.purchaseCashVal;
-  if (data.purchaseInstallmentsTotal !== undefined) row.purchaseinstallmentstotal = data.purchaseInstallmentsTotal;
-  if (data.purchaseInstallmentsPaid !== undefined) row.purchaseinstallmentspaid = data.purchaseInstallmentsPaid;
-  if (data.purchaseInstallmentPrice !== undefined) row.purchaseinstallmentprice = data.purchaseInstallmentPrice;
-  if (data.previousOwner !== undefined) row.previousowner = data.previousOwner;
+
+  // Serialize missing columns/extras in generalnotes to prevent schema errors
+  const extras = {};
+  if (data.user_id !== undefined) extras.user_id = data.user_id;
+  if (data.fuelType !== undefined) extras.fuelType = data.fuelType;
+  if (data.doors !== undefined) extras.doors = data.doors;
+  if (data.occupants !== undefined) extras.occupants = data.occupants;
+  if (data.options !== undefined) extras.options = data.options;
+  if (data.purchaseMode !== undefined) extras.purchaseMode = data.purchaseMode;
+  if (data.purchaseTradeInDesc !== undefined) extras.purchaseTradeInDesc = data.purchaseTradeInDesc;
+  if (data.purchaseTradeInVal !== undefined) extras.purchaseTradeInVal = data.purchaseTradeInVal;
+  if (data.purchaseCashVal !== undefined) extras.purchaseCashVal = data.purchaseCashVal;
+  if (data.purchaseInstallmentsTotal !== undefined) extras.purchaseInstallmentsTotal = data.purchaseInstallmentsTotal;
+  if (data.purchaseInstallmentsPaid !== undefined) extras.purchaseInstallmentsPaid = data.purchaseInstallmentsPaid;
+  if (data.purchaseInstallmentPrice !== undefined) extras.purchaseInstallmentPrice = data.purchaseInstallmentPrice;
+  if (data.previousOwner !== undefined) extras.previousOwner = data.previousOwner;
+
+  if (data.saleDiscount !== undefined) extras.saleDiscount = data.saleDiscount;
+  if (data.saleMode !== undefined) extras.saleMode = data.saleMode;
+  if (data.saleTradeInDesc !== undefined) extras.saleTradeInDesc = data.saleTradeInDesc;
+  if (data.saleTradeInVal !== undefined) extras.saleTradeInVal = data.saleTradeInVal;
+  if (data.saleCashVal !== undefined) extras.saleCashVal = data.saleCashVal;
+  if (data.saleInstallmentsTotal !== undefined) extras.saleInstallmentsTotal = data.saleInstallmentsTotal;
+  if (data.saleInstallmentsPaid !== undefined) extras.saleInstallmentsPaid = data.saleInstallmentsPaid;
+  if (data.saleInstallmentPrice !== undefined) extras.saleInstallmentPrice = data.saleInstallmentPrice;
+  if (data.saleTradeIns !== undefined) extras.saleTradeIns = data.saleTradeIns;
+  if (data.salePayments !== undefined) extras.salePayments = data.salePayments;
+  if (data.debtPayments !== undefined) extras.debtPayments = data.debtPayments;
+
+  const baseNotes = data.generalNotes || '';
+  row.generalnotes = baseNotes + '\n\n---VORA_METADATA---\n' + JSON.stringify(extras);
+
   return row;
 }
 
@@ -131,14 +179,17 @@ export const supabaseAdapter = {
       .select('*')
       .order('id', { ascending: false });
 
-    if (userId && !isAdmin) {
-      query = query.eq('user_id', userId);
-    }
-
+    // We do NOT use query.eq('user_id') here to avoid schema exceptions,
+    // instead we filter the records in memory below.
     const { data, error } = await query;
       
     if (error) throw error;
-    return (data || []).map(mapFromSupabase);
+    
+    const list = (data || []).map(mapFromSupabase);
+    if (userId && !isAdmin) {
+      return list.filter(v => String(v.user_id) === String(userId));
+    }
+    return list;
   },
 
   async createVehicle(vehicleData) {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowLeft, Edit3, FileText, CheckSquare, DollarSign, BookOpen, Camera, Info, Save, CheckCircle, AlertTriangle, ChevronRight, ChevronDown, X, Trash2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import ChecklistTab from './ChecklistTab';
@@ -7,6 +8,71 @@ import { compressImage } from '../utils/imageCompressor';
 
 const formatCurrency = (val) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+};
+
+const formatToBRL = (val) => {
+  if (val === undefined || val === null || val === '') return '';
+  let cleanVal = val.toString().replace(/R\$\s?/, '').trim();
+  if (cleanVal === '') return '';
+  if (cleanVal.includes(',') && cleanVal.includes('.')) {
+    cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
+  } else if (cleanVal.includes(',')) {
+    cleanVal = cleanVal.replace(',', '.');
+  }
+  const num = parseFloat(cleanVal);
+  if (isNaN(num)) return '';
+  const parts = num.toFixed(2).split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1];
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${formattedInteger},${decimalPart}`;
+};
+
+const parseFromBRL = (val) => {
+  if (val === undefined || val === null || val === '') return '';
+  let cleanVal = val.toString().replace(/R\$\s?/, '').trim();
+  if (cleanVal.includes(',')) {
+    cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
+  }
+  const num = parseFloat(cleanVal);
+  if (isNaN(num)) return '';
+  return num.toFixed(2);
+};
+
+const CurrencyInput = ({ value, onChange, className, placeholder, ...props }) => {
+  const [focused, setFocused] = useState(false);
+  const [localValue, setLocalValue] = useState(value);
+
+  React.useEffect(() => {
+    if (!focused) {
+      setLocalValue(formatToBRL(value));
+    }
+  }, [value, focused]);
+
+  return (
+    <input
+      type="text"
+      value={focused ? localValue : formatToBRL(localValue)}
+      onFocus={(e) => {
+        setFocused(true);
+        setLocalValue(parseFromBRL(value));
+        setTimeout(() => e.target.select(), 0);
+      }}
+      onBlur={(e) => {
+        setFocused(false);
+        const parsed = parseFromBRL(e.target.value);
+        const formatted = formatToBRL(parsed);
+        setLocalValue(formatted);
+        onChange(parsed);
+      }}
+      onChange={(e) => {
+        setLocalValue(e.target.value);
+      }}
+      className={className}
+      placeholder={placeholder}
+      {...props}
+    />
+  );
 };
 
 const getBase64SizeString = (base64Str) => {
@@ -28,17 +94,94 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
 
   // Sale Editor State
   const [isEditingSale, setIsEditingSale] = useState(false);
-  const [saleData, setSaleData] = useState({
-    buyerName: vehicle.buyerName || '',
-    saleDiscount: vehicle.saleDiscount || '',
-    saleMode: vehicle.saleMode || 'full', // 'full' | 'installments'
-    saleTradeInDesc: vehicle.saleTradeInDesc || '',
-    saleTradeInVal: vehicle.saleTradeInVal || '',
-    saleCashVal: vehicle.saleCashVal || '',
-    saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
-    saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
-    saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
-  });
+
+  // Debt Settlement State
+  const [isSettlingDebt, setIsSettlingDebt] = useState(false);
+  const [debtPaymentVal, setDebtPaymentVal] = useState('');
+  const [debtPaymentMethod, setDebtPaymentMethod] = useState('pix');
+  const [debtAmortizationOption, setDebtAmortizationOption] = useState('reduce_term'); // 'reduce_term' or 'reduce_value'
+  const getInitialSaleData = (veh) => {
+    let tradeIns = [];
+    if (veh.saleTradeIns && Array.isArray(veh.saleTradeIns)) {
+      tradeIns = veh.saleTradeIns.map((t, idx) => ({ id: t.id || idx, desc: t.desc || '', val: (t.val || '').toString() }));
+    } else if (parseFloat(veh.saleTradeInVal) > 0) {
+      tradeIns = [{ id: 1, desc: veh.saleTradeInDesc || 'Veículo de Troca', val: veh.saleTradeInVal.toString() }];
+    }
+
+    let payments = [];
+    let installmentsTotal = '';
+    let installmentsPaid = '';
+    let installmentPrice = '';
+
+    if (veh.salePayments && Array.isArray(veh.salePayments)) {
+      // Filter out installments from payments list
+      const inst = veh.salePayments.find(p => p.type === 'installments');
+      if (inst) {
+        installmentsTotal = (inst.installmentsTotal || '').toString();
+        installmentsPaid = (inst.installmentsPaid || '').toString();
+        installmentPrice = (inst.installmentPrice || '').toString();
+      }
+      payments = veh.salePayments
+        .filter(p => p.type !== 'installments')
+        .map((p, idx) => ({ id: p.id || idx, type: p.type || 'pix', val: (p.val || '').toString() }));
+    } else {
+      const mode = veh.saleMode || 'full';
+      const cash = parseFloat(veh.saleCashVal) || 0;
+      const instT = parseInt(veh.saleInstallmentsTotal) || 0;
+      const instP = parseFloat(veh.saleInstallmentPrice) || 0;
+      
+      if (mode === 'installments') {
+        if (cash > 0) {
+          payments.push({ id: 1, type: 'cash', val: cash.toString() });
+        }
+        if (instT > 0) {
+          installmentsTotal = instT.toString();
+          installmentsPaid = (parseInt(veh.saleInstallmentsPaid) || 0).toString();
+          installmentPrice = instP.toString();
+        }
+      } else {
+        const finalPrice = (parseFloat(veh.resalePrice) || 0) - (parseFloat(veh.saleDiscount) || 0);
+        payments.push({ id: 1, type: 'pix', val: cash > 0 ? cash.toString() : (veh.isSold ? finalPrice.toString() : '') });
+      }
+    }
+
+    if (payments.length === 0) {
+      payments.push({ id: 1, type: 'pix', val: '' });
+    }
+
+    return {
+      buyerName: veh.buyerName || '',
+      saleDiscount: veh.saleDiscount || '',
+      saleTradeIns: tradeIns,
+      salePayments: payments,
+      saleInstallmentsTotal: installmentsTotal || '12',
+      saleInstallmentsPaid: installmentsPaid || '0',
+      saleInstallmentPrice: installmentPrice || '',
+      isInstallmentPriceOverridden: installmentPrice ? true : false,
+      hasTradeIn: tradeIns.length > 0,
+      markRemainingAsInstallments: veh.saleMode === 'installments'
+    };
+  };
+
+  const [saleData, setSaleData] = useState(() => getInitialSaleData(vehicle));
+
+  const handlePaymentChange = (id, field, value) => {
+    setSaleData(prev => {
+      const updated = prev.salePayments.map(p => {
+        if (p.id === id) {
+          const newP = { ...p, [field]: value };
+          if (newP.type === 'installments') {
+            const t = parseInt(newP.installmentsTotal) || 0;
+            const price = parseFloat(newP.installmentPrice) || 0;
+            newP.val = (t * price).toString();
+          }
+          return newP;
+        }
+        return p;
+      });
+      return { ...prev, salePayments: updated };
+    });
+  };
 
   // Specs Editor State
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
@@ -222,18 +365,21 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
   const saleInstallmentsPaid = parseInt(vehicle.saleInstallmentsPaid) || 0;
   const saleInstallmentPrice = parseFloat(vehicle.saleInstallmentPrice) || 0;
   const saleInstallmentsTotal = parseInt(vehicle.saleInstallmentsTotal) || 0;
+  const saleDebtPayments = vehicle.debtPayments || [];
+  const saleDebtPaymentsSum = saleDebtPayments.reduce((sum, dp) => sum + (parseFloat(dp.amount) || 0), 0);
 
   const finalSalePrice = vehicle.isSold
     ? (vehicle.resalePrice || 0) - saleDiscount
     : (vehicle.resalePrice || 0);
-  
-  const saleTotalReceived = vehicle.isSold
+
+  const saleRemainingDebt = vehicle.isSold
     ? (vehicle.saleMode === 'installments'
-        ? saleTradeInVal + saleCashVal + (saleInstallmentsPaid * saleInstallmentPrice)
-        : finalSalePrice)
+        ? Math.max(0, (saleInstallmentsTotal - saleInstallmentsPaid) * saleInstallmentPrice)
+        : Math.max(0, finalSalePrice - (saleTradeInVal + saleCashVal + saleDebtPaymentsSum)))
     : 0;
-  const saleRemainingDebt = vehicle.isSold && vehicle.saleMode === 'installments'
-    ? Math.max(0, finalSalePrice - saleTotalReceived)
+
+  const saleTotalReceived = vehicle.isSold
+    ? Math.max(0, finalSalePrice - saleRemainingDebt)
     : 0;
 
   // Net Profit: Estimated vs. Real
@@ -340,19 +486,76 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
   // Save Sale negotiation details
   const handleSaveSale = async (e) => {
     e.preventDefault();
+    const priceResale = parseFloat(vehicle.resalePrice) || 0;
+    const currentDiscount = parseFloat(saleData.saleDiscount) || 0;
+    const finalPrice = priceResale - currentDiscount;
+    if (finalPrice < totalInvested) {
+      const confirmLoss = window.confirm(
+        `⚠️ ATENÇÃO: Esta negociação resulta em PREJUÍZO de ${formatCurrency(totalInvested - finalPrice)} (Valor final de ${formatCurrency(finalPrice)} é menor que o custo total investido de ${formatCurrency(totalInvested)}).\n\nDeseja realmente prosseguir com esta venda?`
+      );
+      if (!confirmLoss) return;
+    }
+
+    // Calculations for serializing
+    const totalTradeIn = saleData.saleTradeIns.reduce((sum, t) => sum + (parseFloat(t.val) || 0), 0);
+    const tradeInDesc = saleData.saleTradeIns.map(t => `${t.desc} (${formatCurrency(parseFloat(t.val) || 0)})`).join(' + ');
+
+    // Cash/upfront payments total
+    const cashVal = saleData.salePayments.reduce((sum, p) => sum + (parseFloat(p.val) || 0), 0);
+
+    // Installments / a prazo calculations
+    const remainingBalance = finalPrice - (totalTradeIn + cashVal);
+
+    let installmentsTotal = 0;
+    let installmentsPaid = 0;
+    let installmentPrice = 0;
+    let saleMode = 'full';
+
+    // If remaining balance is positive, we treat it as installments (a prazo) only if toggle is checked
+    if (remainingBalance > 0.05 && saleData.markRemainingAsInstallments) {
+      saleMode = 'installments';
+      installmentsTotal = parseInt(saleData.saleInstallmentsTotal) || 12;
+      installmentsPaid = parseInt(saleData.saleInstallmentsPaid) || 0;
+      installmentPrice = saleData.isInstallmentPriceOverridden && saleData.saleInstallmentPrice
+        ? parseFloat(saleData.saleInstallmentPrice) || 0
+        : remainingBalance / installmentsTotal;
+    }
+
+    // Prepare salePayments array for DB storage, including installments item if any
+    const finalPaymentsForDb = saleData.salePayments.map(p => ({
+      id: p.id,
+      type: p.type,
+      val: p.val
+    }));
+
+    if (saleMode === 'installments') {
+      finalPaymentsForDb.push({
+        id: Date.now(),
+        type: 'installments',
+        val: (installmentsTotal * installmentPrice).toString(),
+        installmentsTotal: installmentsTotal,
+        installmentsPaid: installmentsPaid,
+        installmentPrice: installmentPrice
+      });
+    }
+
     try {
       await onUpdateVehicle({
         ...vehicle,
         isSold: true,
         buyerName: saleData.buyerName,
-        saleDiscount: parseFloat(saleData.saleDiscount) || 0,
-        saleMode: saleData.saleMode,
-        saleTradeInDesc: saleData.saleTradeInDesc,
-        saleTradeInVal: parseFloat(saleData.saleTradeInVal) || 0,
-        saleCashVal: parseFloat(saleData.saleCashVal) || 0,
-        saleInstallmentsTotal: parseInt(saleData.saleInstallmentsTotal) || 0,
-        saleInstallmentsPaid: parseInt(saleData.saleInstallmentsPaid) || 0,
-        saleInstallmentPrice: parseFloat(saleData.saleInstallmentPrice) || 0
+        saleDiscount: currentDiscount,
+        saleMode: saleMode,
+        saleTradeInDesc: tradeInDesc,
+        saleTradeInVal: totalTradeIn,
+        saleCashVal: cashVal,
+        saleInstallmentsTotal: installmentsTotal,
+        saleInstallmentsPaid: installmentsPaid,
+        saleInstallmentPrice: installmentPrice,
+        // Persist original arrays inside the object
+        saleTradeIns: saleData.saleTradeIns,
+        salePayments: finalPaymentsForDb,
+        debtPayments: [] // Reset debt payment history on new sale
       });
       setIsEditingSale(false);
       alert('Dados de venda registrados com sucesso!');
@@ -376,13 +579,107 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
           saleCashVal: 0,
           saleInstallmentsTotal: 0,
           saleInstallmentsPaid: 0,
-          saleInstallmentPrice: 0
+          saleInstallmentPrice: 0,
+          debtPayments: [],
+          salePayments: []
         });
         setIsEditingSale(false);
         alert('Veículo retornado ao estoque ativo!');
       } catch (err) {
         alert('Erro ao reativar veículo: ' + err.message);
       }
+    }
+  };
+
+  // Confirm debt amortization payment
+  const handleConfirmDebtPayment = async (e) => {
+    e.preventDefault();
+    const vPay = parseFloat(debtPaymentVal) || 0;
+    if (vPay <= 0) {
+      alert('Por favor, informe um valor de pagamento válido.');
+      return;
+    }
+
+    if (vPay > saleRemainingDebt + 0.05) {
+      alert(`O valor do pagamento (${formatCurrency(vPay)}) não pode ser maior que o saldo devedor atual (${formatCurrency(saleRemainingDebt)}).`);
+      return;
+    }
+
+    const currentDebt = saleRemainingDebt;
+    const newDebt = Math.max(0, currentDebt - vPay);
+
+    const newDebtPayment = {
+      id: Date.now(),
+      amount: vPay,
+      method: debtPaymentMethod,
+      date: new Date().toISOString()
+    };
+
+    const updatedDebtPayments = [...(vehicle.debtPayments || []), newDebtPayment];
+
+    let newInstallmentsPaid = saleInstallmentsPaid;
+    let newInstallmentsTotal = saleInstallmentsTotal;
+    let newInstallmentPrice = saleInstallmentPrice;
+
+    if (vehicle.saleMode === 'installments') {
+      if (newDebt <= 0.05) {
+        newInstallmentsPaid = saleInstallmentsTotal;
+      } else {
+        const currentRemainingCount = saleInstallmentsTotal - saleInstallmentsPaid;
+        
+        if (vPay > saleInstallmentPrice && currentRemainingCount > 1) {
+          if (debtAmortizationOption === 'reduce_term') {
+            const incrementPaid = 1;
+            newInstallmentsPaid = saleInstallmentsPaid + incrementPaid;
+            const newRemainingCount = Math.max(1, Math.round(newDebt / saleInstallmentPrice));
+            newInstallmentsTotal = newInstallmentsPaid + newRemainingCount;
+            newInstallmentPrice = newDebt / newRemainingCount;
+          } else {
+            const incrementPaid = 1;
+            newInstallmentsPaid = saleInstallmentsPaid + incrementPaid;
+            const newRemainingCount = currentRemainingCount - incrementPaid;
+            newInstallmentsTotal = saleInstallmentsTotal;
+            newInstallmentPrice = newDebt / Math.max(1, newRemainingCount);
+          }
+        } else {
+          const incrementPaid = 1;
+          newInstallmentsPaid = saleInstallmentsPaid + incrementPaid;
+          const newRemainingCount = Math.max(1, currentRemainingCount - incrementPaid);
+          newInstallmentsTotal = saleInstallmentsTotal;
+          newInstallmentPrice = newDebt / newRemainingCount;
+        }
+      }
+    }
+
+    let updatedSalePayments = [];
+    if (vehicle.salePayments && Array.isArray(vehicle.salePayments)) {
+      updatedSalePayments = vehicle.salePayments.map(p => {
+        if (p.type === 'installments') {
+          return {
+            ...p,
+            installmentsTotal: newInstallmentsTotal,
+            installmentsPaid: newInstallmentsPaid,
+            installmentPrice: newInstallmentPrice,
+            val: (newInstallmentsTotal * newInstallmentPrice).toString()
+          };
+        }
+        return p;
+      });
+    }
+
+    try {
+      await onUpdateVehicle({
+        ...vehicle,
+        saleInstallmentsPaid: newInstallmentsPaid,
+        saleInstallmentsTotal: newInstallmentsTotal,
+        saleInstallmentPrice: newInstallmentPrice,
+        debtPayments: updatedDebtPayments,
+        salePayments: updatedSalePayments
+      });
+      setIsSettlingDebt(false);
+      alert('Pagamento registrado com sucesso!');
+    } catch (err) {
+      alert('Erro ao registrar pagamento: ' + err.message);
     }
   };
 
@@ -756,17 +1053,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
               if (vehicle.isSold) {
                 handleCancelSale();
               } else {
-                setSaleData({
-                  buyerName: vehicle.buyerName || '',
-                  saleDiscount: vehicle.saleDiscount || '',
-                  saleMode: vehicle.saleMode || 'full',
-                  saleTradeInDesc: vehicle.saleTradeInDesc || '',
-                  saleTradeInVal: vehicle.saleTradeInVal || '',
-                  saleCashVal: vehicle.saleCashVal || '',
-                  saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
-                  saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
-                  saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
-                });
+                setSaleData(getInitialSaleData(vehicle));
                 setIsEditingSale(true);
                 setActiveTab('financial');
               }
@@ -1144,183 +1431,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
           {activeTab === 'financial' && (
             <div className="p-4 md:p-6 border-t border-slate-850 bg-slate-950/20 space-y-6 animate-fade-in">
             
-            {/* INLINE SALE REGISTRATION FORM */}
-            {isEditingSale && (
-              <div className="glass-panel p-6 rounded-3xl border border-sky-500/30 bg-sky-500/5 space-y-4 animate-fade-in">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <div>
-                    <h3 className="text-xs font-headline font-black uppercase tracking-widest text-sky-400">
-                      💰 Registrar Venda / Negociação
-                    </h3>
-                    <p className="text-[9.5px] text-slate-500 font-bold uppercase mt-1 leading-none">
-                      Insira as condições reais acertadas com o comprador do veículo
-                    </p>
-                  </div>
-                  <button 
-                    onClick={() => setIsEditingSale(false)}
-                    className="h-8 w-8 hover:bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-202"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <form onSubmit={handleSaveSale} className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
-                  {/* Target value information */}
-                  <div className="md:col-span-2 p-3 bg-slate-950 border border-slate-850 rounded-xl flex justify-between items-center">
-                    <span className="font-bold text-slate-400">Preço de Revenda do Sistema:</span>
-                    <span className="font-black text-slate-202">{formatCurrency(vehicle.resalePrice)}</span>
-                  </div>
-
-                  {/* Buyer Name */}
-                  <div className="md:col-span-2 space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Nome do Comprador (Cliente)</label>
-                    <input
-                      type="text"
-                      value={saleData.buyerName}
-                      onChange={(e) => setSaleData(prev => ({ ...prev, buyerName: e.target.value }))}
-                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
-                      placeholder="Ex: Maria Oliveira Santos"
-                    />
-                  </div>
-
-                  {/* Discount given */}
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Desconto Concedido (R$)</label>
-                    <input
-                      type="number"
-                      value={saleData.saleDiscount}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => setSaleData(prev => ({ ...prev, saleDiscount: e.target.value }))}
-                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                      placeholder="0"
-                    />
-                  </div>
-
-                  {/* Negotiated Price (read-only output) */}
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Preço Final Negociado (R$)</label>
-                    <div className="w-full h-10 px-3 bg-slate-950 border border-slate-855 rounded-xl text-xs font-black text-sky-400 flex items-center">
-                      {formatCurrency((vehicle.resalePrice || 0) - (parseFloat(saleData.saleDiscount) || 0))}
-                    </div>
-                  </div>
-
-                  {/* Sale Mode */}
-                  <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Forma de Recebimento</label>
-                    <select
-                      value={saleData.saleMode}
-                      onChange={(e) => setSaleData(prev => ({ ...prev, saleMode: e.target.value }))}
-                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                    >
-                      <option value="full">À Vista (Total Recebido)</option>
-                      <option value="installments">A Prazo / Recebimento Parcelado</option>
-                    </select>
-                  </div>
-
-                  {/* Conditional installment fields */}
-                  {saleData.saleMode === 'installments' && (
-                    <div className="md:col-span-2 grid grid-cols-1 gap-4 p-4 bg-slate-950/65 border border-slate-855 rounded-2xl">
-                      <p className="text-[8.5px] font-black text-amber-400 uppercase tracking-wider">
-                        ⚠️ Composição dos Recebimentos / Saldo Devedor
-                      </p>
-
-                      {/* Trade-in Description */}
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Descrição do Veículo ou Bem de Troca</label>
-                        <input
-                          type="text"
-                          value={saleData.saleTradeInDesc}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleTradeInDesc: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white placeholder-slate-650"
-                          placeholder="Ex: Moto dada de troca pelo cliente"
-                        />
-                      </div>
-
-                      {/* Trade-in Value */}
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor Estimado do Bem de Troca (R$)</label>
-                        <input
-                          type="number"
-                          value={saleData.saleTradeInVal}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleTradeInVal: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      {/* Cash Entry */}
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor Pago em Entrada / Dinheiro (R$)</label>
-                        <input
-                          type="number"
-                          value={saleData.saleCashVal}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleCashVal: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      {/* Total Installments */}
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Total de Parcelas Acertadas</label>
-                        <input
-                          type="number"
-                          value={saleData.saleInstallmentsTotal}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentsTotal: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      {/* Installment Value */}
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor de Cada Parcela a Receber (R$)</label>
-                        <input
-                          type="number"
-                          value={saleData.saleInstallmentPrice}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentPrice: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                          placeholder="0"
-                        />
-                      </div>
-
-                      {/* Installments Paid */}
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Parcelas Recebidas / Pagas pelo Cliente</label>
-                        <input
-                          type="number"
-                          value={saleData.saleInstallmentsPaid}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentsPaid: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                          placeholder="0"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="md:col-span-2 flex justify-end gap-2.5 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsEditingSale(false)}
-                      className="h-10 px-4 bg-slate-900 border border-slate-800 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:text-slate-200"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      className="h-10 px-6 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"
-                    >
-                      Confirmar Venda
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
+            {/* SALE REGISTRATION OVERLAY MODAL RENDERS OUTSIDE ACCORDION */}
 
             {/* INLINE FINANCIAL EDIT FORM */}
             {isEditingFinancial && (
@@ -1346,37 +1457,66 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                   {/* Acquisition Price */}
                   <div className="space-y-1.5">
                     <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor de Aquisição (R$)</label>
-                    <input
-                      type="number"
+                    <CurrencyInput
                       value={financialData.acquisitionPrice}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => setFinancialData(prev => ({ ...prev, acquisitionPrice: e.target.value }))}
-                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
+                      onChange={(val) => setFinancialData(prev => ({ ...prev, acquisitionPrice: val }))}
+                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                      placeholder="0,00"
                     />
                   </div>
 
                   {/* Resale Price */}
                   <div className="space-y-1.5">
                     <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Preço de Revenda Estimado (R$)</label>
-                    <input
-                      type="number"
+                    <CurrencyInput
                       value={financialData.resalePrice}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => setFinancialData(prev => ({ ...prev, resalePrice: e.target.value }))}
-                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
+                      onChange={(val) => setFinancialData(prev => ({ ...prev, resalePrice: val }))}
+                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                      placeholder="0,00"
                     />
                   </div>
 
                   {/* Max Discount Percent */}
                   <div className="space-y-1.5">
                     <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Desconto Máximo (%)</label>
-                    <input
-                      type="number"
-                      value={financialData.maxDiscountPercent}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => setFinancialData(prev => ({ ...prev, maxDiscountPercent: e.target.value }))}
-                      className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white"
-                    />
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={financialData.maxDiscountPercent}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => setFinancialData(prev => ({ ...prev, maxDiscountPercent: e.target.value }))}
+                        className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white pr-7"
+                        placeholder="0"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                      />
+                      <span className="absolute right-3 top-2.5 text-[10px] font-black text-slate-500">%</span>
+                    </div>
+                  </div>
+
+                  {/* Max Discount Value (R$) */}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Desconto Máximo (R$)</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={parseFloat(financialData.resalePrice) > 0 ? (parseFloat(financialData.resalePrice) * (parseFloat(financialData.maxDiscountPercent) || 0) / 100).toFixed(2) : ''}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          const resalePrice = parseFloat(financialData.resalePrice) || 0;
+                          const pct = resalePrice > 0 ? (val / resalePrice) * 100 : 0;
+                          const roundedPct = parseFloat(pct.toFixed(2));
+                          setFinancialData(prev => ({ ...prev, maxDiscountPercent: roundedPct }));
+                        }}
+                        className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-emerald-500 focus:outline-none rounded-xl text-xs font-bold text-white pl-8"
+                        placeholder="0,00"
+                        disabled={!(parseFloat(financialData.resalePrice) > 0)}
+                        title={!(parseFloat(financialData.resalePrice) > 0) ? "Defina o Preço de Revenda primeiro" : ""}
+                      />
+                      <span className="absolute left-3 top-2.5 text-[10px] font-black text-slate-500">R$</span>
+                    </div>
                   </div>
 
                   {/* Purchase Mode */}
@@ -1411,23 +1551,21 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
 
                       <div className="space-y-1.5">
                         <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor da Troca (R$)</label>
-                        <input
-                          type="number"
+                        <CurrencyInput
                           value={financialData.purchaseTradeInVal}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseTradeInVal: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
+                          onChange={(val) => setFinancialData(prev => ({ ...prev, purchaseTradeInVal: val }))}
+                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                          placeholder="0,00"
                         />
                       </div>
 
                       <div className="space-y-1.5">
                         <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Entrada em Dinheiro (R$)</label>
-                        <input
-                          type="number"
+                        <CurrencyInput
                           value={financialData.purchaseCashVal}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseCashVal: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
+                          onChange={(val) => setFinancialData(prev => ({ ...prev, purchaseCashVal: val }))}
+                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                          placeholder="0,00"
                         />
                       </div>
 
@@ -1444,12 +1582,11 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
 
                       <div className="space-y-1.5">
                         <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Valor de Cada Parcela (R$)</label>
-                        <input
-                          type="number"
+                        <CurrencyInput
                           value={financialData.purchaseInstallmentPrice}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(e) => setFinancialData(prev => ({ ...prev, purchaseInstallmentPrice: e.target.value }))}
-                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white"
+                          onChange={(val) => setFinancialData(prev => ({ ...prev, purchaseInstallmentPrice: val }))}
+                          className="w-full h-10 px-3 bg-slate-950 border border-slate-855 focus:border-sky-500 focus:outline-none rounded-xl text-xs font-bold text-white shadow-sm"
+                          placeholder="0,00"
                         />
                       </div>
 
@@ -1835,17 +1972,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                   {vehicle.isSold && (
                     <button
                       onClick={() => {
-                        setSaleData({
-                          buyerName: vehicle.buyerName || '',
-                          saleDiscount: vehicle.saleDiscount || '',
-                          saleMode: vehicle.saleMode || 'full',
-                          saleTradeInDesc: vehicle.saleTradeInDesc || '',
-                          saleTradeInVal: vehicle.saleTradeInVal || '',
-                          saleCashVal: vehicle.saleCashVal || '',
-                          saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
-                          saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
-                          saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
-                        });
+                        setSaleData(getInitialSaleData(vehicle));
                         setIsEditingSale(true);
                       }}
                       className="text-[9px] font-black uppercase text-sky-400 hover:underline"
@@ -1871,51 +1998,239 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                         <span className="font-black text-sky-400">{formatCurrency(finalSalePrice)}</span>
                       </div>
 
-                      <div className="flex justify-between">
-                        <span className="text-slate-400">Forma de Recebimento:</span>
-                        <span className="font-bold text-slate-202">
-                          {vehicle.saleMode === 'installments' ? 'A Prazo / Parcelado' : 'À Vista'}
-                        </span>
+                      {/* Trade-ins details */}
+                      {vehicle.saleTradeIns && vehicle.saleTradeIns.length > 0 ? (
+                        vehicle.saleTradeIns.map((t, idx) => (
+                          <div key={idx} className="flex justify-between">
+                            <span className="text-slate-400">Troca ({t.desc}):</span>
+                            <span className="font-bold text-slate-300">{formatCurrency(parseFloat(t.val) || 0)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        saleTradeInVal > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Troca Recebida ({vehicle.saleTradeInDesc || 'Bem de Troca'}):</span>
+                            <span className="font-bold text-slate-300">{formatCurrency(saleTradeInVal)}</span>
+                          </div>
+                        )
+                      )}
+
+                      {/* Payments details */}
+                      {vehicle.salePayments && vehicle.salePayments.length > 0 ? (
+                        vehicle.salePayments.map((p, idx) => {
+                          if (p.type === 'installments') {
+                            const instTotal = parseInt(p.installmentsTotal) || 0;
+                            const instPaid = parseInt(p.installmentsPaid) || 0;
+                            const instPrice = parseFloat(p.installmentPrice) || 0;
+                            return (
+                              <div key={idx} className="space-y-1">
+                                <div className="flex justify-between">
+                                  <span className="text-slate-400">Parcelamento Loja ({instTotal}x de {formatCurrency(instPrice)}):</span>
+                                  <span className="font-bold text-slate-300">{formatCurrency(instTotal * instPrice)}</span>
+                                </div>
+                                <div className="flex justify-between pl-3 text-[10px]">
+                                  <span className="text-slate-500">Parcelas Quitadas:</span>
+                                  <span className="font-bold text-emerald-400">
+                                    {instPaid} de {instTotal} ({formatCurrency(instPaid * instPrice)})
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          }
+                          const labelMap = {
+                            pix: 'Pix',
+                            cash: 'Dinheiro',
+                            credit_card: 'Cartão de Crédito',
+                            debit_card: 'Cartão de Débito',
+                            financing: 'Financiamento Bancário',
+                            billet: 'Boleto Bancário'
+                          };
+                          return (
+                            <div key={idx} className="flex justify-between">
+                              <span className="text-slate-400">{labelMap[p.type] || 'Outro Recebimento'}:</span>
+                              <span className="font-bold text-slate-300">{formatCurrency(parseFloat(p.val) || 0)}</span>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        vehicle.saleMode === 'installments' ? (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">Entrada Recebida:</span>
+                              <span className="font-bold text-slate-300">{formatCurrency(saleCashVal)}</span>
+                            </div>
+                            {saleInstallmentsTotal > 0 && (
+                              <>
+                                <div className="flex justify-between">
+                                  <span className="text-slate-400">Parcelas Acordadas:</span>
+                                  <span className="font-bold text-slate-300">
+                                    {saleInstallmentsTotal} parcelas de {formatCurrency(saleInstallmentPrice)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-slate-400">Parcelas Quitadas:</span>
+                                  <span className="font-bold text-emerald-400">
+                                    {saleInstallmentsPaid} de {saleInstallmentsTotal} ({formatCurrency(saleInstallmentsPaid * saleInstallmentPrice)})
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <div className="p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-center text-[10px] font-bold text-emerald-400">
+                            Valor total liquidado à vista pelo comprador.
+                          </div>
+                        )
+                      )}
+
+                      <div className="flex justify-between pt-2 border-t border-slate-800 text-slate-300 font-bold">
+                        <span>Total Recebido:</span>
+                        <span className="text-emerald-400">{formatCurrency(saleTotalReceived)}</span>
                       </div>
 
-                      {vehicle.saleMode === 'installments' ? (
-                        <>
-                          {vehicle.saleTradeInDesc && (
-                            <div className="flex justify-between">
-                              <span className="text-slate-400">Troca Recebida ({vehicle.saleTradeInDesc}):</span>
-                              <span className="font-bold text-slate-202">{formatCurrency(saleTradeInVal)}</span>
-                            </div>
+                      {saleRemainingDebt > 0 && (
+                        <div className="flex justify-between pt-1 text-amber-400 font-black text-sm">
+                          <span>Saldo Devedor do Cliente:</span>
+                          <span>{formatCurrency(saleRemainingDebt)}</span>
+                        </div>
+                      )}
+
+                      {/* Amortization history */}
+                      {vehicle.debtPayments && vehicle.debtPayments.length > 0 && (
+                        <div className="mt-3 p-3 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2 text-left">
+                          <h4 className="text-[8px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-800/80 pb-1">
+                            📜 Histórico de Amortização de Dívida
+                          </h4>
+                          <div className="space-y-1.5 max-h-[100px] overflow-y-auto pr-1">
+                            {vehicle.debtPayments.map((dp, idx) => {
+                              const labelMap = {
+                                pix: 'Pix',
+                                cash: 'Dinheiro',
+                                credit_card: 'Cartão de Crédito',
+                                debit_card: 'Cartão de Débito',
+                                billet: 'Boleto Bancário'
+                              };
+                              return (
+                                <div key={dp.id || idx} className="flex justify-between items-center text-[10px] text-slate-300">
+                                  <span>
+                                    {new Date(dp.date).toLocaleDateString('pt-BR')} - {labelMap[dp.method] || 'Outro'}:
+                                  </span>
+                                  <span className="font-bold text-emerald-400 font-bold">+{formatCurrency(dp.amount)}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Debt settlement trigger and inline form */}
+                      {saleRemainingDebt > 0.05 && (
+                        <div className="mt-2.5">
+                          {!isSettlingDebt ? (
+                            <button
+                              onClick={() => {
+                                setDebtPaymentVal(vehicle.saleMode === 'installments' ? saleInstallmentPrice.toFixed(2) : saleRemainingDebt.toFixed(2));
+                                setDebtPaymentMethod('pix');
+                                setDebtAmortizationOption('reduce_term');
+                                setIsSettlingDebt(true);
+                              }}
+                              className="w-full h-9 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/20"
+                            >
+                              <DollarSign className="h-3.5 w-3.5" /> Registrar Recebimento / Abater Dívida
+                            </button>
+                          ) : (
+                            <form onSubmit={handleConfirmDebtPayment} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 space-y-3 text-left">
+                              <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-1.5 flex justify-between items-center">
+                                <span>💸 Registrar Recebimento</span>
+                                <span className="text-[8px] font-black text-slate-550 uppercase">Saldo Devedor: {formatCurrency(saleRemainingDebt)}</span>
+                              </h4>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-black text-slate-700 uppercase tracking-wider">Valor Pago pelo Cliente (R$)</label>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    max={saleRemainingDebt.toFixed(2)}
+                                    value={debtPaymentVal}
+                                    onFocus={(e) => e.target.select()}
+                                    onChange={(e) => setDebtPaymentVal(e.target.value)}
+                                    className="w-full h-8 px-2 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                                    required
+                                  />
+                                </div>
+
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-black text-slate-700 uppercase tracking-wider">Meio de Pagamento</label>
+                                  <select
+                                    value={debtPaymentMethod}
+                                    onChange={(e) => setDebtPaymentMethod(e.target.value)}
+                                    className="w-full h-8 px-2 bg-white border border-slate-300 focus:border-emerald-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                                  >
+                                    <option value="pix">Pix</option>
+                                    <option value="cash">Dinheiro</option>
+                                    <option value="credit_card">Cartão de Crédito</option>
+                                    <option value="debit_card">Cartão de Débito</option>
+                                    <option value="billet">Boleto Bancário</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                              {vehicle.saleMode === 'installments' && parseFloat(debtPaymentVal) > saleInstallmentPrice && (saleInstallmentsTotal - saleInstallmentsPaid) > 1 && (
+                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2 animate-fade-in">
+                                  <p className="text-[8.5px] font-black text-amber-900 uppercase tracking-wider">
+                                    ⚠️ O valor pago excede uma parcela de {formatCurrency(saleInstallmentPrice)}
+                                  </p>
+                                  <p className="text-[8px] text-amber-700 uppercase font-bold leading-tight">
+                                    Como deseja recalcular o saldo excedente de {formatCurrency(parseFloat(debtPaymentVal) - saleInstallmentPrice)}?
+                                  </p>
+                                  <div className="flex flex-col gap-1.5 pt-1">
+                                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                                      <input
+                                        type="radio"
+                                        name="debtAmortOption"
+                                        checked={debtAmortizationOption === 'reduce_term'}
+                                        onChange={() => setDebtAmortizationOption('reduce_term')}
+                                        className="h-3.5 w-3.5 text-amber-600 border-amber-300 focus:ring-amber-500"
+                                      />
+                                      <span className="text-[9px] font-black text-amber-900 uppercase tracking-wider">
+                                        Quitar parcelas futuras (reduzir o prazo)
+                                      </span>
+                                    </label>
+                                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                                      <input
+                                        type="radio"
+                                        name="debtAmortOption"
+                                        checked={debtAmortizationOption === 'reduce_value'}
+                                        onChange={() => setDebtAmortizationOption('reduce_value')}
+                                        className="h-3.5 w-3.5 text-amber-600 border-amber-300 focus:ring-amber-500"
+                                      />
+                                      <span className="text-[9px] font-black text-amber-900 uppercase tracking-wider">
+                                        Diminuir o valor das parcelas restantes
+                                      </span>
+                                    </label>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="flex gap-2 pt-1.5">
+                                <button
+                                  type="submit"
+                                  className="flex-1 h-8 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-md transition-all"
+                                >
+                                  Confirmar Recebimento
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setIsSettlingDebt(false)}
+                                  className="h-8 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </form>
                           )}
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Entrada Recebida:</span>
-                            <span className="font-bold text-slate-205">{formatCurrency(saleCashVal)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Parcelas Acordadas:</span>
-                            <span className="font-bold text-slate-202">
-                              {saleInstallmentsTotal} parcelas de {formatCurrency(saleInstallmentPrice)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Parcelas Quitadas:</span>
-                            <span className="font-bold text-emerald-400">
-                              {saleInstallmentsPaid} de {saleInstallmentsTotal} ({formatCurrency(saleInstallmentsPaid * saleInstallmentPrice)})
-                            </span>
-                          </div>
-
-                          <div className="flex justify-between pt-2 border-t border-slate-800 text-slate-300 font-bold">
-                            <span>Total Recebido:</span>
-                            <span className="text-emerald-450">{formatCurrency(saleTotalReceived)}</span>
-                          </div>
-
-                          <div className="flex justify-between pt-1 text-amber-400 font-black text-sm">
-                            <span>Saldo Devedor do Cliente:</span>
-                            <span>{formatCurrency(saleRemainingDebt)}</span>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-center text-[10px] font-bold text-emerald-400">
-                          Valor total liquidado à vista pelo comprador.
                         </div>
                       )}
 
@@ -1933,17 +2248,7 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                       </p>
                       <button
                         onClick={() => {
-                          setSaleData({
-                            buyerName: vehicle.buyerName || '',
-                            saleDiscount: vehicle.saleDiscount || '',
-                            saleMode: vehicle.saleMode || 'full',
-                            saleTradeInDesc: vehicle.saleTradeInDesc || '',
-                            saleTradeInVal: vehicle.saleTradeInVal || '',
-                            saleCashVal: vehicle.saleCashVal || '',
-                            saleInstallmentsTotal: vehicle.saleInstallmentsTotal || '',
-                            saleInstallmentsPaid: vehicle.saleInstallmentsPaid || '',
-                            saleInstallmentPrice: vehicle.saleInstallmentPrice || ''
-                          });
+                          setSaleData(getInitialSaleData(vehicle));
                           setIsEditingSale(true);
                         }}
                         className="h-10 px-5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-500/20 inline-flex items-center gap-1.5"
@@ -2552,13 +2857,820 @@ export default function VehicleDetails({ vehicle, onBack, onEdit, onUpdateVehicl
                   handleExport(exportScope, exportFormat);
                   setIsExportModalOpen(false);
                 }}
-                className="flex-1 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-black uppercase tracking-wider shadow-lg shadow-sky-500/10 transition-all"
+                className="flex-1 py-3 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-600 rounded-xl font-black uppercase tracking-wider transition-all"
               >
                 Baixar Laudo
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* CHECKOUT FULLSCREEN OVERLAY */}
+      {isEditingSale && createPortal(
+        <div 
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            zIndex: 999999, 
+            backgroundColor: '#f8fafc',
+            display: 'flex',
+            flexDirection: 'column'
+          }} 
+          className="overflow-y-auto text-left text-slate-900 animate-fade-in"
+        >
+          {/* Header */}
+          <header className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 md:px-12 flex justify-between items-center z-10 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="bg-sky-500 text-white p-2.5 rounded-xl shadow-lg shadow-sky-500/20">
+                <DollarSign className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm md:text-base font-headline font-black uppercase tracking-widest text-slate-900">
+                    Checkout de Venda
+                  </h3>
+                  <span className="px-2 py-0.5 bg-sky-50 border border-sky-100 text-sky-600 rounded text-[9px] font-black uppercase tracking-wider">
+                    {vehicle.plate || 'Sem Placa'}
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
+                  Veículo: {vehicle.brand} {vehicle.model} ({vehicle.year})
+                </p>
+              </div>
+            </div>
+            <button 
+              type="button"
+              onClick={() => setIsEditingSale(false)}
+              className="h-10 px-4 hover:bg-slate-100 rounded-xl flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-all border border-slate-200 bg-white font-black text-[9px] uppercase tracking-wider"
+            >
+              <X className="h-4 w-4" /> Cancelar Checkout
+            </button>
+          </header>
+
+          {/* Form wrapper */}
+          <form onSubmit={handleSaveSale} className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-8 text-xs">
+            {/* Left Column: Transaction Details Config */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Card 1: Comprador & Desconto */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-6 shadow-sm">
+                <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-3 flex items-center gap-2">
+                  👤 Identificação e Descontos
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* System Value reference */}
+                  <div className="md:col-span-2 p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center">
+                    <span className="font-bold text-[10px] uppercase text-slate-500">Valor de Revenda (Tabela):</span>
+                    <span className="font-black text-slate-900 text-sm">{formatCurrency(vehicle.resalePrice)}</span>
+                  </div>
+
+                  {/* Buyer Name */}
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-700">Nome Completo do Comprador</label>
+                    <input
+                      type="text"
+                      value={saleData.buyerName}
+                      onChange={(e) => setSaleData(prev => ({ ...prev, buyerName: e.target.value }))}
+                      className="w-full h-10 px-3 bg-white border border-slate-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900 placeholder-slate-400"
+                      placeholder="Ex: Maria Oliveira Santos"
+                      required
+                    />
+                  </div>
+
+                  {/* Discount given */}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-700">Desconto Concedido (R$)</label>
+                    <CurrencyInput
+                      value={saleData.saleDiscount}
+                      onChange={(val) => setSaleData(prev => ({ ...prev, saleDiscount: val }))}
+                      className="w-full h-10 px-3 bg-white border border-slate-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none rounded-xl text-xs font-bold text-slate-900"
+                      placeholder="0,00"
+                    />
+                  </div>
+
+                  {/* Negotiated Price (read-only output) */}
+                  {(() => {
+                    const priceResale = parseFloat(vehicle.resalePrice) || 0;
+                    const currentDiscount = parseFloat(saleData.saleDiscount) || 0;
+                    const finalPrice = priceResale - currentDiscount;
+                    const potentialProfit = priceResale - totalInvested;
+                    const isPriceRed = currentDiscount > potentialProfit;
+                    return (
+                      <div className="space-y-1.5 relative">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[9px] font-black uppercase tracking-wider text-slate-700">Preço Final Negociado (R$)</label>
+                          {isPriceRed && (
+                            <span className="text-[8px] px-1.5 py-0.5 bg-rose-50 border border-rose-200 text-rose-600 rounded font-black uppercase tracking-wider animate-pulse">
+                              ⚠️ PREJUÍZO!
+                            </span>
+                          )}
+                        </div>
+                        <div className={`w-full h-10 px-3 bg-white border rounded-xl text-xs font-black flex items-center justify-between ${isPriceRed ? 'text-rose-600 border-rose-500 bg-rose-50' : 'text-sky-600 border-slate-300'}`}>
+                          <span>{formatCurrency(finalPrice)}</span>
+                          {isPriceRed && (
+                            <span className="text-[9px] font-bold text-rose-500">
+                              (Perda de {formatCurrency(totalInvested - finalPrice)})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* SECTION: VEÍCULOS DE TROCA */}
+              <div className="md:col-span-2 p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-200 pb-3 gap-3">
+                  <div>
+                    <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+                      🚗 Veículos / Bens de Troca
+                    </h4>
+                    <p className="text-[8px] text-slate-500 font-bold uppercase mt-0.5">Informe se algum veículo foi pego na negociação</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSaleData(prev => ({
+                          ...prev,
+                          hasTradeIn: false,
+                          saleTradeIns: []
+                        }));
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider border transition-all ${
+                        !saleData.hasTradeIn
+                          ? 'bg-slate-200 border-slate-300 text-slate-700 font-black shadow-sm'
+                          : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      Não houve troca
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSaleData(prev => {
+                          const tradeIns = prev.saleTradeIns.length > 0 ? prev.saleTradeIns : [{ id: Date.now(), desc: '', val: '' }];
+                          return {
+                            ...prev,
+                            hasTradeIn: true,
+                            saleTradeIns: tradeIns
+                          };
+                        });
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider border transition-all ${
+                        saleData.hasTradeIn
+                          ? 'bg-sky-500 border-sky-500 text-white font-black shadow-lg shadow-sky-500/10'
+                          : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      Houve Troca
+                    </button>
+                  </div>
+                </div>
+
+                {saleData.hasTradeIn && (
+                  <div className="space-y-3">
+                    {saleData.saleTradeIns.map((trade, idx) => (
+                      <div key={trade.id} className="flex flex-col md:flex-row gap-3 items-end md:items-center bg-white p-3 border border-slate-200 rounded-xl relative">
+                        <div className="flex-1 space-y-1 w-full">
+                          <label className="text-[8px] font-black uppercase tracking-wider text-slate-500">Descrição do Veículo (Troca {idx + 1})</label>
+                          <input
+                            type="text"
+                            value={trade.desc}
+                            onChange={(e) => {
+                              const updated = saleData.saleTradeIns.map(t => t.id === trade.id ? { ...t, desc: e.target.value } : t);
+                              setSaleData(prev => ({ ...prev, saleTradeIns: updated }));
+                            }}
+                            className="w-full h-8 px-2 bg-white border border-slate-200 focus:border-sky-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                            placeholder="Ex: Honda Civic LXR 2.0 Flex 2016"
+                            required
+                          />
+                        </div>
+                        <div className="w-full md:w-48 space-y-1">
+                          <label className="text-[8px] font-black uppercase tracking-wider text-slate-500">Valor Pago / Avaliação (R$)</label>
+                          <CurrencyInput
+                            value={trade.val}
+                            onChange={(val) => {
+                              const updated = saleData.saleTradeIns.map(t => t.id === trade.id ? { ...t, val } : t);
+                              setSaleData(prev => ({ ...prev, saleTradeIns: updated }));
+                            }}
+                            className="w-full h-8 px-2 bg-white border border-slate-200 focus:border-sky-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                            placeholder="0,00"
+                            required
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = saleData.saleTradeIns.filter(t => t.id !== trade.id);
+                            setSaleData(prev => ({
+                              ...prev,
+                              saleTradeIns: updated,
+                              hasTradeIn: updated.length > 0
+                            }));
+                          }}
+                          className="h-8 px-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 rounded-lg flex items-center justify-center transition-all w-full md:w-auto"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setSaleData(prev => ({
+                          ...prev,
+                          saleTradeIns: [...prev.saleTradeIns, { id: Date.now(), desc: '', val: '' }]
+                        }))}
+                        className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-600 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                      >
+                        + Adicionar Outro Veículo de Troca
+                      </button>
+                      <div className="text-[10px] font-black text-slate-700">
+                        SUBTOTAL TROCAS: <span className="text-sky-600 font-extrabold">{formatCurrency(saleData.saleTradeIns.reduce((sum, t) => sum + (parseFloat(t.val) || 0), 0))}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION: FORMAS DE RECEBIMENTO / PAGAMENTOS RECEBIDOS NO ATO */}
+              <div className="md:col-span-2 p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                  <div>
+                    <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+                      💵 Valores Recebidos à Vista / Entrada
+                    </h4>
+                    <p className="text-[8px] text-slate-500 font-bold uppercase mt-0.5">Adicione todos os valores já pagos (Pix, Dinheiro, Cartões, etc.)</p>
+                  </div>
+                </div>
+
+                {saleData.salePayments.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-4 space-y-3">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-center">
+                      Nenhum pagamento registrado. Informe ao menos um pagamento ou sinal.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setSaleData(prev => ({
+                        ...prev,
+                        salePayments: [...prev.salePayments, { id: Date.now(), type: 'pix', val: '' }]
+                      }))}
+                      className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-600 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                    >
+                      + Adicionar Pagamento
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {saleData.salePayments.map((payment, idx) => (
+                      <div key={payment.id} className="flex flex-col md:flex-row gap-3 items-end md:items-center bg-white p-3 border border-slate-200 rounded-xl relative">
+                        <div className="w-full md:w-48 space-y-1">
+                          <label className="text-[8px] font-black uppercase tracking-wider text-slate-500">Meio de Pagamento</label>
+                          <select
+                            value={payment.type}
+                            onChange={(e) => {
+                              const updated = saleData.salePayments.map(p => p.id === payment.id ? { ...p, type: e.target.value } : p);
+                              setSaleData(prev => ({ ...prev, salePayments: updated }));
+                            }}
+                            className="w-full h-8 px-2 bg-white border border-slate-200 focus:border-sky-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                          >
+                            <option value="pix">Pix</option>
+                            <option value="cash">Dinheiro</option>
+                            <option value="credit_card">Cartão de Crédito</option>
+                            <option value="debit_card">Cartão de Débito</option>
+                            <option value="financing">Financiamento Bancário</option>
+                            <option value="billet">Boleto Bancário</option>
+                          </select>
+                        </div>
+                        <div className="flex-1 space-y-1 w-full">
+                          <label className="text-[8px] font-black uppercase tracking-wider text-slate-500">Valor Recebido (R$)</label>
+                          <div className="flex gap-1.5 items-center">
+                            <CurrencyInput
+                              value={payment.val}
+                              onChange={(val) => {
+                                const updated = saleData.salePayments.map(p => p.id === payment.id ? { ...p, val } : p);
+                                setSaleData(prev => ({ ...prev, salePayments: updated }));
+                              }}
+                              className="flex-1 h-8 px-2 bg-white border border-slate-200 focus:border-sky-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                              placeholder="0,00"
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const priceResale = parseFloat(vehicle.resalePrice) || 0;
+                                const disc = parseFloat(saleData.saleDiscount) || 0;
+                                const finalPrice = priceResale - disc;
+                                const totalTradeIn = saleData.saleTradeIns.reduce((sum, t) => sum + (parseFloat(t.val) || 0), 0);
+                                const otherPayments = saleData.salePayments
+                                  .filter(p => p.id !== payment.id)
+                                  .reduce((sum, p) => sum + (parseFloat(p.val) || 0), 0);
+                                const remaining = Math.max(0, finalPrice - (totalTradeIn + otherPayments));
+                                
+                                const updated = saleData.salePayments.map(p => 
+                                  p.id === payment.id ? { ...p, val: String(remaining) } : p
+                                );
+                                setSaleData(prev => ({ ...prev, salePayments: updated }));
+                              }}
+                              className="h-8 px-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center whitespace-nowrap"
+                            >
+                              Restante
+                            </button>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = saleData.salePayments.filter(p => p.id !== payment.id);
+                            setSaleData(prev => ({ ...prev, salePayments: updated }));
+                          }}
+                          className="h-8 px-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 rounded-lg flex items-center justify-center transition-all w-full md:w-auto"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setSaleData(prev => ({
+                          ...prev,
+                          salePayments: [...prev.salePayments, { id: Date.now(), type: 'pix', val: '' }]
+                        }))}
+                        className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-600 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                      >
+                        + Adicionar Outro Pagamento
+                      </button>
+                      <div className="text-[10px] font-black text-slate-700">
+                        SUBTOTAL RECEBIDOS: <span className="text-slate-900 font-extrabold">{formatCurrency(saleData.salePayments.reduce((sum, p) => sum + (parseFloat(p.val) || 0), 0))}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION: SALDO DEVEDOR / A PRAZO (INSTALLMENTS) */}
+              {(() => {
+                const priceResale = parseFloat(vehicle.resalePrice) || 0;
+                const disc = parseFloat(saleData.saleDiscount) || 0;
+                const finalPrice = priceResale - disc;
+                const totalTradeIn = saleData.saleTradeIns.reduce((sum, t) => sum + (parseFloat(t.val) || 0), 0);
+                const totalPayments = saleData.salePayments.reduce((sum, p) => sum + (parseFloat(p.val) || 0), 0);
+                const remainingBalance = finalPrice - (totalTradeIn + totalPayments);
+
+                if (remainingBalance <= 0.05) {
+                  return (
+                    <div className="md:col-span-2 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-emerald-800 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">✅</span>
+                        <div>
+                          <p className="font-black uppercase tracking-wider text-[9px] text-emerald-900">Negociação 100% Liquidada</p>
+                          <p className="font-bold text-[9px] text-emerald-600 uppercase mt-0.5">Nenhum saldo restante pendente de parcelamento</p>
+                        </div>
+                      </div>
+                      <span className="font-black text-emerald-900">{formatCurrency(finalPrice)}</span>
+                    </div>
+                  );
+                }
+
+                const instTotal = parseInt(saleData.saleInstallmentsTotal) || 12;
+                const calculatedPrice = remainingBalance / instTotal;
+                const instPrice = saleData.isInstallmentPriceOverridden && saleData.saleInstallmentPrice
+                  ? parseFloat(saleData.saleInstallmentPrice) || 0
+                  : calculatedPrice;
+
+                return (
+                  <div className="md:col-span-2 p-5 bg-amber-50/40 border border-amber-200 rounded-2xl space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-amber-200 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🕒</span>
+                        <div>
+                          <h4 className="text-[10px] font-black text-amber-900 uppercase tracking-widest leading-none">
+                            Total Restante Após Pagamentos
+                          </h4>
+                          <p className="text-[8.5px] text-amber-700 font-bold uppercase mt-1">
+                            Saldo devedor residual: <span className="font-black text-amber-900">{formatCurrency(remainingBalance)}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Box/Selector to mark remainder as installments */}
+                      <label className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-100/70 border border-amber-200 rounded-xl cursor-pointer hover:bg-amber-150 transition-all select-none">
+                        <input
+                          type="checkbox"
+                          checked={!!saleData.markRemainingAsInstallments}
+                          onChange={(e) => setSaleData(prev => ({ ...prev, markRemainingAsInstallments: e.target.checked }))}
+                          className="h-4 w-4 text-amber-600 border-amber-300 focus:ring-amber-500 rounded cursor-pointer"
+                        />
+                        <span className="text-[10px] font-black text-amber-900 uppercase tracking-wider">
+                          Marcar o restante no prazo
+                        </span>
+                      </label>
+                    </div>
+
+                    {saleData.markRemainingAsInstallments ? (
+                      <div className="space-y-4 animate-fade-in">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {/* Total Installments Select */}
+                          <div className="space-y-1">
+                            <label className="text-[8px] font-black uppercase tracking-wider text-slate-700">Qtd. Total de Parcelas</label>
+                            <select
+                              value={saleData.saleInstallmentsTotal}
+                              onChange={(e) => setSaleData(prev => ({ ...prev, saleInstallmentsTotal: e.target.value }))}
+                              className="w-full h-8 px-2 bg-white border border-slate-300 focus:border-sky-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                              required
+                            >
+                              {Array.from({ length: 36 }, (_, i) => i + 1).map(n => (
+                                <option key={n} value={n}>{n}x</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Installments Paid */}
+                          <div className="space-y-1">
+                            <label className="text-[8px] font-black uppercase tracking-wider text-slate-700">Parcelas Já Pagas (Sinal/Histórico)</label>
+                            <input
+                              type="number"
+                              min="0"
+                              max={saleData.saleInstallmentsTotal}
+                              value={saleData.saleInstallmentsPaid}
+                              onFocus={(e) => e.target.select()}
+                              onChange={(e) => {
+                                const val = Math.min(parseInt(e.target.value) || 0, parseInt(saleData.saleInstallmentsTotal) || 1);
+                                setSaleData(prev => ({ ...prev, saleInstallmentsPaid: val.toString() }));
+                              }}
+                              className="w-full h-8 px-2 bg-white border border-slate-300 focus:border-sky-500 focus:outline-none rounded-lg text-[11px] font-bold text-slate-900"
+                              placeholder="0"
+                              required
+                            />
+                          </div>
+
+                          {/* Value per Installment */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <label className="text-[8px] font-black uppercase tracking-wider text-slate-700">Valor da Parcela (R$)</label>
+                              {saleData.isInstallmentPriceOverridden && (
+                                <button
+                                  type="button"
+                                  onClick={() => setSaleData(prev => ({ ...prev, isInstallmentPriceOverridden: false, saleInstallmentPrice: '' }))}
+                                  className="text-[7.5px] font-black text-sky-600 hover:text-sky-700 uppercase tracking-wider"
+                                  title="Resetar 🔄"
+                                >
+                                  Resetar 🔄
+                                </button>
+                              )}
+                            </div>
+                            <CurrencyInput
+                              value={saleData.isInstallmentPriceOverridden ? saleData.saleInstallmentPrice : instPrice.toFixed(2)}
+                              onChange={(val) => setSaleData(prev => ({ ...prev, isInstallmentPriceOverridden: true, saleInstallmentPrice: val }))}
+                              className={`w-full h-8 px-2 bg-white border focus:border-sky-500 focus:outline-none rounded-lg text-[11px] font-bold ${
+                                saleData.isInstallmentPriceOverridden ? 'text-sky-600 border-sky-300 font-extrabold' : 'text-slate-900 border-slate-300'
+                              }`}
+                              placeholder="0,00"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="text-[10px] text-amber-900 font-bold bg-amber-100/50 p-2.5 rounded-lg flex justify-between items-center">
+                          <span>VALOR TOTAL PARCELADO E REGISTRADO:</span>
+                          <span className="font-black text-sm">{formatCurrency(instTotal * instPrice)}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-amber-100/20 border border-dashed border-amber-300 rounded-xl text-center text-[9px] font-bold uppercase tracking-wider text-amber-800">
+                        ℹ️ O saldo de {formatCurrency(remainingBalance)} ficará registrado como saldo devedor em aberto na ficha do veículo.
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Resumo do Checkout da Venda */}
+              {(() => {
+                const priceResale = parseFloat(vehicle.resalePrice) || 0;
+                const disc = parseFloat(saleData.saleDiscount) || 0;
+                const finalPrice = priceResale - disc;
+                const potProfit = priceResale - totalInvested;
+                const isPriceRed = disc > potProfit;
+                
+                const totalTradeIn = saleData.saleTradeIns.reduce((sum, t) => sum + (parseFloat(t.val) || 0), 0);
+                const totalPayments = saleData.salePayments.reduce((sum, p) => sum + (parseFloat(p.val) || 0), 0);
+
+                // Installment calculations for summary
+                const remainingBalance = finalPrice - (totalTradeIn + totalPayments);
+                let installmentsVal = 0;
+                if (remainingBalance > 0.05) {
+                  const instTotal = parseInt(saleData.saleInstallmentsTotal) || 12;
+                  const calculatedPrice = remainingBalance / instTotal;
+                  const instPrice = saleData.isInstallmentPriceOverridden && saleData.saleInstallmentPrice
+                    ? parseFloat(saleData.saleInstallmentPrice) || 0
+                    : calculatedPrice;
+                  installmentsVal = instTotal * instPrice;
+                }
+
+                const totalComposition = totalTradeIn + totalPayments + installmentsVal;
+
+                const profitVal = finalPrice - totalInvested;
+                const diffVal = finalPrice - totalComposition;
+
+                return (
+                  <div className="md:col-span-2 p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4 text-slate-800">
+                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2 flex justify-between items-center">
+                      <span>📋 Resumo do Checkout da Venda</span>
+                      {Math.abs(diffVal) < 0.05 ? (
+                        <span className="text-[8px] px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full font-black uppercase tracking-wider">
+                          Valores Coincidentes
+                        </span>
+                      ) : (
+                        <span className="text-[8px] px-2 py-0.5 bg-amber-100 text-amber-800 border border-amber-200 rounded-full font-black uppercase tracking-wider animate-pulse">
+                          Diferença: {formatCurrency(Math.abs(diffVal))}
+                        </span>
+                      )}
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      {/* Detalhes de Custo */}
+                      <div className="space-y-1.5">
+                        <h5 className="text-[8px] font-black text-slate-500 uppercase tracking-wider">Detalhamento dos Custos</h5>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Preço de Custo (Compra):</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(vehicle.acquisitionPrice)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Investido em Peças/Reparos:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(totalRepairs)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Documentação e Débitos:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(totalAdditionalExpenses)}</span>
+                        </div>
+                        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-bold">
+                          <span className="text-slate-700">Total Investido (Custo Geral):</span>
+                          <span className="text-slate-900">{formatCurrency(totalInvested)}</span>
+                        </div>
+                      </div>
+
+                      {/* Negociação e Lucros */}
+                      <div className="space-y-1.5">
+                        <h5 className="text-[8px] font-black text-slate-550 uppercase tracking-wider">Simulação do Resultado</h5>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Preço Estimado Inicial:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(priceResale)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Desconto Concedido:</span>
+                          <span className="font-bold text-amber-600">-{formatCurrency(disc)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Desconto Máximo Permitido:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(maxDiscountVal)}</span>
+                        </div>
+                        
+                        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-bold">
+                          <span className="text-slate-700">Preço Final Negociado:</span>
+                          <span className={isPriceRed ? "text-rose-600 font-black" : "text-sky-600"}>
+                            {formatCurrency(finalPrice)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Composição de Recebimentos */}
+                    <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
+                      <h5 className="text-[8px] font-black text-slate-550 uppercase tracking-wider">Composição do Recebimento</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                        <div>
+                          <span className="text-slate-550 block text-[9px] uppercase font-bold">Bens de Troca (+)</span>
+                          <span className="font-bold text-sky-600">{formatCurrency(totalTradeIn)}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-550 block text-[9px] uppercase font-bold">À Vista / Entrada (+)</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(totalPayments)}</span>
+                        </div>
+                        {remainingBalance > 0.05 && (
+                          <div>
+                            <span className="text-slate-550 block text-[9px] uppercase font-bold">Saldo a Prazo (+)</span>
+                            <span className="font-bold text-amber-600">{formatCurrency(installmentsVal)}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex justify-between border-t border-slate-100 pt-1.5 text-xs font-bold">
+                        <span className="text-slate-700 font-bold">Soma Total dos Recebimentos:</span>
+                        <span className="text-emerald-600">{formatCurrency(totalComposition)}</span>
+                      </div>
+                      {Math.abs(diffVal) > 0.05 && (
+                        <p className="text-[9px] text-amber-600 font-bold uppercase tracking-wide text-center pt-1 animate-pulse">
+                          ⚠️ Atenção: A soma dos recebimentos ({formatCurrency(totalComposition)}) difere do preço negociado ({formatCurrency(finalPrice)}) por {formatCurrency(Math.abs(diffVal))}!
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Lucro e Margem */}
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white text-left">
+                      <div>
+                        <p className="text-[8px] font-black text-slate-550 uppercase tracking-wider leading-none">Lucro Líquido Real da Venda</p>
+                        <p className={`text-base font-black mt-1 ${profitVal >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {formatCurrency(profitVal)} ({totalInvested > 0 ? ((profitVal / totalInvested) * 100).toFixed(1) : 0}%)
+                        </p>
+                      </div>
+                      {profitVal < 0 && (
+                        <span className="px-2.5 py-1 bg-rose-50 border border-rose-200 text-[9px] font-black text-rose-600 rounded-lg uppercase tracking-wider animate-pulse">
+                          ⚠️ Venda com Prejuízo!
+                        </span>
+                      )}
+                      {profitVal >= 0 && profitVal < (potProfit - maxDiscountVal) && (
+                        <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-[9px] font-black text-amber-600 rounded-lg uppercase tracking-wider">
+                          Abaixo da Meta
+                        </span>
+                      )}
+                      {profitVal >= (potProfit - maxDiscountVal) && (
+                        <span className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-[9px] font-black text-emerald-600 rounded-lg uppercase tracking-wider">
+                          Excelente Margem
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Right Column: Financial Report & Actions */}
+            <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24 h-fit">
+              {/* Resumo do Checkout da Venda */}
+              {(() => {
+                const priceResale = parseFloat(vehicle.resalePrice) || 0;
+                const disc = parseFloat(saleData.saleDiscount) || 0;
+                const finalPrice = priceResale - disc;
+                const potProfit = priceResale - totalInvested;
+                const isPriceRed = disc > potProfit;
+                
+                const totalTradeIn = saleData.saleTradeIns.reduce((sum, t) => sum + (parseFloat(t.val) || 0), 0);
+                const totalPayments = saleData.salePayments.reduce((sum, p) => sum + (parseFloat(p.val) || 0), 0);
+
+                // Installment calculations for summary
+                const remainingBalance = finalPrice - (totalTradeIn + totalPayments);
+                let installmentsVal = 0;
+                if (remainingBalance > 0.05) {
+                  const instTotal = parseInt(saleData.saleInstallmentsTotal) || 12;
+                  const calculatedPrice = remainingBalance / instTotal;
+                  const instPrice = saleData.isInstallmentPriceOverridden && saleData.saleInstallmentPrice
+                    ? parseFloat(saleData.saleInstallmentPrice) || 0
+                    : calculatedPrice;
+                  installmentsVal = instTotal * instPrice;
+                }
+
+                const totalComposition = totalTradeIn + totalPayments + installmentsVal;
+
+                const profitVal = finalPrice - totalInvested;
+                const diffVal = finalPrice - totalComposition;
+
+                return (
+                  <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-4 text-slate-800 shadow-sm">
+                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-2 flex justify-between items-center">
+                      <span>📋 Resumo do Checkout da Venda</span>
+                      {Math.abs(diffVal) < 0.05 ? (
+                        <span className="text-[8px] px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full font-black uppercase tracking-wider">
+                          Valores Coincidentes
+                        </span>
+                      ) : (
+                        <span className="text-[8px] px-2 py-0.5 bg-amber-100 text-amber-800 border border-amber-200 rounded-full font-black uppercase tracking-wider animate-pulse">
+                          Diferença: {formatCurrency(Math.abs(diffVal))}
+                        </span>
+                      )}
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 gap-4 text-xs">
+                      {/* Detalhes de Custo */}
+                      <div className="space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <h5 className="text-[8px] font-black text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Detalhamento dos Custos</h5>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-bold uppercase text-[8px]">Preço de Custo (Compra):</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(vehicle.acquisitionPrice)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-bold uppercase text-[8px]">Investido em Peças/Reparos:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(totalRepairs)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-bold uppercase text-[8px]">Documentação e Débitos:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(totalAdditionalExpenses)}</span>
+                        </div>
+                        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-black">
+                          <span className="text-slate-700 uppercase text-[8px]">Total Investido (Custo Geral):</span>
+                          <span className="text-slate-900">{formatCurrency(totalInvested)}</span>
+                        </div>
+                      </div>
+
+                      {/* Negociação e Lucros */}
+                      <div className="space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <h5 className="text-[8px] font-black text-slate-550 uppercase tracking-wider border-b border-slate-200 pb-1">Simulação do Resultado</h5>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-bold uppercase text-[8px]">Preço Estimado Inicial:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(priceResale)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-bold uppercase text-[8px]">Desconto Concedido:</span>
+                          <span className="font-bold text-amber-600">-{formatCurrency(disc)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-bold uppercase text-[8px]">Desconto Máximo Permitido:</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(maxDiscountVal)}</span>
+                        </div>
+                        
+                        <div className="flex justify-between border-t border-slate-200 pt-1.5 font-black">
+                          <span className="text-slate-700 uppercase text-[8px]">Preço Final Negociado:</span>
+                          <span className={isPriceRed ? "text-rose-600 font-black" : "text-sky-600"}>
+                            {formatCurrency(finalPrice)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Composição de Recebimentos */}
+                    <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
+                      <h5 className="text-[8px] font-black text-slate-550 uppercase tracking-wider border-b border-slate-200 pb-1">Composição do Recebimento</h5>
+                      <div className="grid grid-cols-3 gap-2 text-[11px]">
+                        <div>
+                          <span className="text-slate-550 block text-[8px] uppercase font-bold">Bens de Troca (+)</span>
+                          <span className="font-bold text-sky-600">{formatCurrency(totalTradeIn)}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-550 block text-[8px] uppercase font-bold">Entrada (+)</span>
+                          <span className="font-bold text-slate-900">{formatCurrency(totalPayments)}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-550 block text-[8px] uppercase font-bold">A Prazo (+)</span>
+                          <span className="font-bold text-amber-600">{formatCurrency(installmentsVal)}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-100 pt-1.5 text-xs font-bold">
+                        <span className="text-slate-700 font-bold">Soma Total dos Recebimentos:</span>
+                        <span className="text-emerald-600">{formatCurrency(totalComposition)}</span>
+                      </div>
+                      {Math.abs(diffVal) > 0.05 && (
+                        <p className="text-[9px] text-amber-600 font-bold uppercase tracking-wide text-center pt-1 animate-pulse">
+                          ⚠️ Diferença de recebimento: {formatCurrency(Math.abs(diffVal))}!
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Lucro e Margem */}
+                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-left">
+                      <div>
+                        <p className="text-[8px] font-black text-slate-550 uppercase tracking-wider leading-none">Lucro Líquido Real da Venda</p>
+                        <p className={`text-base font-black mt-1 ${profitVal >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {formatCurrency(profitVal)} ({totalInvested > 0 ? ((profitVal / totalInvested) * 100).toFixed(1) : 0}%)
+                        </p>
+                      </div>
+                      {profitVal < 0 && (
+                        <span className="px-2.5 py-1 bg-rose-50 border border-rose-200 text-[9px] font-black text-rose-600 rounded-lg uppercase tracking-wider animate-pulse">
+                          ⚠️ Venda com Prejuízo!
+                        </span>
+                      )}
+                      {profitVal >= 0 && profitVal < (potProfit - maxDiscountVal) && (
+                        <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-[9px] font-black text-amber-600 rounded-lg uppercase tracking-wider">
+                          Abaixo da Meta
+                        </span>
+                      )}
+                      {profitVal >= (potProfit - maxDiscountVal) && (
+                        <span className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-[9px] font-black text-emerald-600 rounded-lg uppercase tracking-wider">
+                          Excelente Margem
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Action buttons */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <button
+                  type="submit"
+                  className="w-full h-12 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-sky-600/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <DollarSign className="h-4 w-4" /> Confirmar e Salvar Venda
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingSale(false)}
+                  className="w-full h-12 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 transition-all"
+                >
+                  Cancelar e Voltar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>,
+        document.body
       )}
     </div>
   );
